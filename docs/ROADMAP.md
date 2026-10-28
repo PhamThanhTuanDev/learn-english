@@ -10,7 +10,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 - [x] P0-04 Pint, Larastan level 6, `composer check`
 - [x] P0-05 CI GitHub Actions (lint + phân tích tĩnh + test)
 - [x] P0-06 CLAUDE.md, ROADMAP, PROGRESS, DECISIONS, skill `tiep-tuc`
-- [ ] P0-07 Push lần đầu lên GitHub và CI xanh *(cần bạn đồng ý)*
+- [x] P0-07 Push lần đầu lên GitHub và CI xanh
 
 **Xong khi:** CI trên GitHub chạy xanh với nhánh `main`.
 

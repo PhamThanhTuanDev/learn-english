@@ -10,9 +10,10 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Tài liệu: CLAUDE.md, ROADMAP, DECISIONS, PROGRESS; skill `/tiep-tuc`.
 - Lưu mã nguồn tạo file Word lộ trình vào `tools/roadmap/` (dùng lại cho P3-01).
 
+- Đã push `main` lên GitHub; CI run đầu tiên xanh (lint, Larastan, test).
+
 **Tiếp theo**
-- P0-07: push lên GitHub khi bạn đồng ý, kiểm tra CI xanh.
-- Sau đó P1-01: lệnh tạo tài khoản chủ.
+- P1-01: lệnh tạo tài khoản chủ.
 
 **Lưu ý**
 - Máy dev không có PHP: mọi lệnh PHP chạy qua `docker compose exec -T app ...`.
