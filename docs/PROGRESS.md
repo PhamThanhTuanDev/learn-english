@@ -34,6 +34,19 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 **Tiếp theo**
 - P1-03: trang Cài đặt học (ngày bắt đầu lộ trình, mục tiêu phút/ngày, múi giờ).
 
+## 2026-10-28 · P1-03 (xong Phase 1)
+**Đã làm**
+- Cột `users.roadmap_start_date` (nullable), `users.daily_goal_minutes` (mặc định 120).
+- Trang Cài đặt học `/settings` (menu tài khoản): ngày bắt đầu, mục tiêu phút (15–600), múi giờ; kiểm tra dữ liệu, thông báo lỗi tiếng Việt.
+- `User::roadmapDayNumber()`: ngày thứ mấy của lộ trình, tính theo múi giờ người học.
+- Trang Hôm nay: "Tuần X · Ngày Y", hoặc nhắc chọn ngày bắt đầu. 55 test pass; đã thử lưu cài đặt trên trình duyệt.
+
+**Tiếp theo**
+- Phase 2 – deploy. P2-01 do bạn làm trên cPanel (mình hướng dẫn từng bước): DB user riêng, collation, tài khoản FTP, PHP extensions, kiểm tra Terminal/SSH.
+
+**Lưu ý**
+- Cách tính tuần/ngày hiện nằm trong `dashboard.blade.php`; Phase 3 sẽ chuyển sang lớp dịch vụ khi có dữ liệu lộ trình.
+
 **Lưu ý**
 - Tài khoản dev nằm trong `.env` (`OWNER_*`), tạo bằng `php artisan db:seed`. Không commit `.env`.
 - Thêm class Tailwind mới thì chạy `npm run build` (hoặc `npm run dev`) mới thấy trên trang.
