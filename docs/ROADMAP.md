@@ -15,7 +15,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 **Xong khi:** CI trên GitHub chạy xanh với nhánh `main`.
 
 ## Phase 1 — Tài khoản và giao diện chung
-- [ ] P1-01 Lệnh `php artisan app:create-owner` + seeder tạo tài khoản chủ từ biến môi trường; test
+- [x] P1-01 Lệnh `php artisan app:create-owner` + seeder tạo tài khoản chủ từ biến môi trường; test
 - [ ] P1-02 Giao diện tiếng Việt (`lang/vi`), giờ Việt Nam khi hiển thị; menu: Hôm nay · Lộ trình · Flashcard · Sổ lỗi · Điểm số
 - [ ] P1-03 Trang Cài đặt học: ngày bắt đầu lộ trình, mục tiêu phút/ngày
 
