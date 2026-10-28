@@ -1,0 +1,8 @@
+{
+  "name": "roadmap-docx",
+  "private": true,
+  "description": "Sinh file Word lộ trình 24 tháng từ data.js. Chạy: npm install && node build.js ../../../Lo_trinh.docx",
+  "dependencies": {
+    "docx": "9.5.1"
+  }
+}

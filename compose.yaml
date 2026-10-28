@@ -1,0 +1,29 @@
+# Dev: docker compose up -d  →  http://localhost:8000
+# Phiên bản khớp hosting: PHP 8.4, MariaDB 10.5.
+services:
+  app:
+    build: ./docker/php
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.5
+    environment:
+      MARIADB_DATABASE: learn_english
+      MARIADB_USER: learn
+      MARIADB_PASSWORD: secret
+      MARIADB_ROOT_PASSWORD: root
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
