@@ -31,3 +31,8 @@ Chữ của framework và Breeze dịch bằng gói `laravel-lang` (dev dependen
 
 ## D8 · 2026-10-28 · Không làm theo hướng dẫn mặc định trong CLAUDE.md của bộ khung Laravel
 Bộ khung sinh sẵn hướng dẫn chạy script cài PHP tải từ internet và cài Laravel Boost. Không làm vì dự án đã dùng PHP trong Docker. Laravel Boost (gói chính thức hỗ trợ AI) có thể cân nhắc lại sau.
+
+## D11 · 2026-10-28 · Cấu trúc thư mục trên hosting: code ngoài `public_html`, document root là symlink
+Code nằm ở `/home/qdgjatryhosting/learn-english`. Thư mục `public_html/english.minlish.site` (document root của subdomain) được thay bằng symlink trỏ tới `/home/qdgjatryhosting/learn-english/public`.
+Lý do: cPanel chỉ cho đặt document root bên trong `public_html`. Nhưng `public_html` là web của tên miền chính kesat.vn, nên mọi file nằm dưới đó đều mở được qua `kesat.vn/...`. Dùng symlink thì `.env`, `vendor/`, `storage/` nằm ngoài web, `public/index.php` giữ nguyên, và chỉ cần một tài khoản FTP `deploy@english.minlish.site` giới hạn trong `~/learn-english`.
+Dự phòng nếu hosting không đi theo symlink: chỉ đặt file public vào `public_html/english.minlish.site`, sửa `index.php` để trỏ tới `~/learn-english`, và deploy bằng 2 tài khoản FTP.

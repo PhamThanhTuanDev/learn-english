@@ -57,3 +57,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Máy dev không có PHP: mọi lệnh PHP chạy qua `docker compose exec -T app ...`.
 - Dữ liệu từ vựng: `../vocabulary-set-33.csv` (7.463 từ; khoảng 2.600 từ thiếu hoặc sai level).
 - Trên hosting, DB `qdgjatryhosting_learn-english` đang dùng chung user `qdgjatryhosting_asm-web-ute` với 2 DB khác → nên tạo user riêng (P2-01).
+
+## 2026-10-28 · P2-01 (chuẩn bị hosting)
+**Đã làm** (bạn làm trên cPanel)
+- DB `qdgjatryhosting_learn-english`: đang trống, collation `utf8mb4_unicode_ci`, chỉ user `qdgjatryhosting_learn` có quyền (ALL). Đã gỡ quyền của `asm-web-ute` trên DB này.
+- FTP `deploy@english.minlish.site` giới hạn trong `/home/qdgjatryhosting/learn-english`. Server `ftp.kesat.vn`, cổng 21, có explicit FTPS.
+- PHP 8.4 (CloudLinux PHP Selector, cài đặt chung cho 8 domain của tài khoản). Có đủ extension Laravel cần, kể cả intl, bcmath.
+- Terminal: có, `php` CLI 8.4.27, không có `composer` (`vendor/` sẽ build trên CI).
+- Cron Jobs: có. cPanel gợi ý dùng `/usr/local/bin/php`, các cron cũ dùng `/usr/bin/php`.
+- Chốt D11: code ở `~/learn-english`, document root là symlink.
+
+**Tiếp theo**
+- P2-02: dựng symlink trên hosting và thử bằng trang tĩnh.
+
+**Lưu ý**
+- Document root chỉ đặt được bên trong `public_html`. `public_html` là web của kesat.vn (WordPress), nên không để file nhạy cảm nào dưới đó.
+- `pdo_mysql` và `nd_pdo_mysql` đều đang bật. Nếu log có "Module pdo_mysql already loaded" thì bỏ tick `pdo_mysql` (phải cẩn thận vì ảnh hưởng cả 8 domain).
+- `opcache` đang tắt; bật thì nhanh hơn nhưng cũng ảnh hưởng cả 8 domain.
+- phpMyAdmin hiện server là `localhost:3306` → production dùng `DB_HOST=localhost`.
