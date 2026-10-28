@@ -24,6 +24,20 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 **Tiếp theo**
 - P1-02: giao diện tiếng Việt, giờ Việt Nam, menu khung.
 
+## 2026-10-28 · P1-02
+**Đã làm**
+- Locale `vi` (laravel-lang dịch chữ framework/Breeze; sửa tay "Đăng xuất").
+- Cột `users.timezone` + `User::localNow()` (D9).
+- Menu: Hôm nay · Lộ trình · Flashcard · Sổ lỗi · Điểm số; 4 mục sau là trang "sắp có". `/` chuyển tới `/dashboard`; bỏ trang welcome mặc định.
+- Trang Hôm nay chào tên và hiện thứ/ngày theo giờ người dùng. 45 test pass; đã xem thử trên trình duyệt (điện thoại và máy tính).
+
+**Tiếp theo**
+- P1-03: trang Cài đặt học (ngày bắt đầu lộ trình, mục tiêu phút/ngày, múi giờ).
+
+**Lưu ý**
+- Tài khoản dev nằm trong `.env` (`OWNER_*`), tạo bằng `php artisan db:seed`. Không commit `.env`.
+- Thêm class Tailwind mới thì chạy `npm run build` (hoặc `npm run dev`) mới thấy trên trang.
+
 **Lưu ý**
 - Tạo tài khoản dev: `docker compose exec app php artisan app:create-owner` (không có `-T` để nhập mật khẩu ẩn).
 - Không truyền `--password` trên dòng lệnh ở production vì mật khẩu sẽ nằm trong lịch sử shell.

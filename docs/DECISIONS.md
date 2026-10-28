@@ -23,5 +23,11 @@ PHP 8.4.27 + MariaDB 10.5 trong Docker, khớp hosting; máy dev không cần c�
 ## D7 · 2026-10-28 · Test chạy trên SQLite in-memory
 Nhanh và đơn giản cho cả máy dev lẫn CI. Khi có truy vấn đặc thù MariaDB, thêm một job CI chạy với MariaDB 10.5.
 
+## D9 · 2026-10-28 · Lưu giờ UTC, hiển thị theo múi giờ người dùng
+Cột `users.timezone` (mặc định `Asia/Ho_Chi_Minh`) và `User::localNow()`. "Hôm nay" trong lộ trình tính theo giờ của người học: 18:30 UTC đã là ngày hôm sau ở Việt Nam. Trang Cài đặt (P1-03) sẽ cho đổi múi giờ.
+
+## D10 · 2026-10-28 · Giao diện tiếng Việt
+Chữ của framework và Breeze dịch bằng gói `laravel-lang` (dev dependency, file nằm trong `lang/vi`). Chữ riêng của app viết thẳng tiếng Việt trong Blade. Chạy `php artisan lang:update` có thể ghi đè chỉnh sửa tay trong `lang/vi.json` (ví dụ "Đăng xuất"), nên xem lại diff sau khi chạy.
+
 ## D8 · 2026-10-28 · Không làm theo hướng dẫn mặc định trong CLAUDE.md của bộ khung Laravel
 Bộ khung sinh sẵn hướng dẫn chạy script cài PHP tải từ internet và cài Laravel Boost. Không làm vì dự án đã dùng PHP trong Docker. Laravel Boost (gói chính thức hỗ trợ AI) có thể cân nhắc lại sau.
