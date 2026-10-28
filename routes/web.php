@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StudySettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
+
+    Route::get('/settings', [StudySettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [StudySettingsController::class, 'update'])->name('settings.update');
 
     // Placeholders until each feature lands (see docs/ROADMAP.md).
     Route::view('/roadmap', 'coming-soon', ['title' => 'Lộ trình', 'phase' => 'Phase 3'])->name('roadmap');
