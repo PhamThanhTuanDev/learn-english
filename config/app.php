@@ -68,6 +68,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Owner Account
+    |--------------------------------------------------------------------------
+    |
+    | Read by OwnerSeeder to create the single owner account on hosting that
+    | has no shell. Remove OWNER_PASSWORD from .env after the first seed.
+    |
+    */
+
+    'owner' => [
+        'name' => env('OWNER_NAME', 'Owner'),
+        'email' => env('OWNER_EMAIL', ''),
+        'password' => env('OWNER_PASSWORD', ''),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
