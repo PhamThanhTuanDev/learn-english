@@ -75,3 +75,20 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - `pdo_mysql` và `nd_pdo_mysql` đều đang bật. Nếu log có "Module pdo_mysql already loaded" thì bỏ tick `pdo_mysql` (phải cẩn thận vì ảnh hưởng cả 8 domain).
 - `opcache` đang tắt; bật thì nhanh hơn nhưng cũng ảnh hưởng cả 8 domain.
 - phpMyAdmin hiện server là `localhost:3306` → production dùng `DB_HOST=localhost`.
+
+## 2026-10-28 · P2-02 (cấu trúc thư mục trên hosting)
+**Đã làm** (bạn chạy trong Terminal của cPanel)
+- Tạo `~/learn-english/public`, đổi tên thư mục cũ thành `~/public_html/english.minlish.site.bak`, tạo symlink `~/public_html/english.minlish.site` → `/home/qdgjatryhosting/learn-english/public`.
+- Đã thử: http://english.minlish.site/symlink-test.txt trả về `ok` → web server (LiteSpeed) đi theo symlink được.
+
+**Tiếp theo**
+- Kiểm tra PHP chạy qua web có phải 8.4 không: file tạm `public/v.php` (`<?php echo PHP_VERSION;`), xem xong thì xóa luôn cùng `symlink-test.txt`. Chưa có kết quả thì hỏi bạn.
+- P2-03: workflow `deploy.yml` (build → FTPS tới `ftp.kesat.vn:21`; thư mục gốc của tài khoản FTP chính là `~/learn-english`).
+
+**Lưu ý**
+- Web server là LiteSpeed, đọc `.htaccess` giống Apache.
+- `.htaccess` cũ của subdomain (vẫn còn trong `.bak`) chỉ có 2 phần do cPanel tự sinh: ghi log lỗi PHP vào `~/logs/php.error.log`, và `AddHandler application/x-httpd-ea-php81`. Thư mục mới không có file này. Nếu web vẫn chạy PHP 8.4 thì không cần đưa sang; nếu ra 8.1 thì phải thêm handler vào `public/.htaccess` trong repo.
+- Document root giờ là `~/learn-english/public`, nên những gì MultiPHP Manager hay MultiPHP INI Editor ghi vào `.htaccess` sẽ bị deploy ghi đè. Muốn đổi gì thì sửa `public/.htaccess` trong repo.
+- AutoSSL sẽ tạo thư mục `.well-known` trong `~/learn-english/public`, nên deploy không được xóa file không do nó upload.
+- Tài khoản FTP `asm-web-ute@english.minlish.site` đang trỏ vào thư mục không còn tồn tại; xóa nếu không dùng.
+- Giữ `english.minlish.site.bak` cho đến khi web chạy ổn.

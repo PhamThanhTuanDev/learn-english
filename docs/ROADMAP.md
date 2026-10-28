@@ -23,7 +23,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 
 ## Phase 2 — Deploy sớm lên english.minlish.site
 - [x] P2-01 *(bạn làm trên cPanel, mình hướng dẫn)* tạo DB user riêng cho `learn-english`, đổi collation DB sang `utf8mb4_unicode_ci`, tạo tài khoản FTP giới hạn thư mục, kiểm tra PHP extensions và xem có Terminal/SSH không
-- [ ] P2-02 Dựng cấu trúc thư mục trên hosting theo D11: code ở `~/learn-english`, `public_html/english.minlish.site` là symlink tới `~/learn-english/public`; thử trang tĩnh chạy được qua symlink
+- [x] P2-02 Dựng cấu trúc thư mục trên hosting theo D11: code ở `~/learn-english`, `public_html/english.minlish.site` là symlink tới `~/learn-english/public`; thử trang tĩnh chạy được qua symlink
 - [ ] P2-03 Workflow `deploy.yml`: build (`composer install --no-dev`, `npm run build`) → deploy qua FTP; secrets do bạn tự nhập
 - [ ] P2-04 `.env` production + cách chạy migration trên hosting *(cần chốt, tùy có Terminal hay không)*
 - [ ] P2-05 SSL (AutoSSL), bật Force HTTPS, kiểm tra đăng nhập trên production
