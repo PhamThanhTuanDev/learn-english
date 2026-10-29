@@ -1,4 +1,4 @@
-// Nội dung lộ trình 24 tháng. build.js đọc file này để sinh .docx.
+// Nội dung lộ trình 24 tháng. build.js đọc file này để sinh .docx, export-json.js để sinh database/data/roadmap.json.
 
 const resources = [
   ["R0", "British Council – Bài kiểm tra trình độ", "https://learnenglish.britishcouncil.org/online-english-level-test", "Đo trình độ ở các mốc tháng 3, 9 (và khi cần)."],

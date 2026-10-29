@@ -1,7 +1,10 @@
 {
   "name": "roadmap-docx",
   "private": true,
-  "description": "Sinh file Word lộ trình 24 tháng từ data.js. Chạy: npm install && node build.js ../../../Lo_trinh.docx",
+  "description": "Sinh file Word lộ trình 24 tháng và database/data/roadmap.json từ data.js. Word: npm install && node build.js ../../../Lo_trinh.docx. JSON: npm run json (không cần npm install).",
+  "scripts": {
+    "json": "node export-json.js ../../database/data/roadmap.json"
+  },
   "dependencies": {
     "docx": "9.5.1"
   }
