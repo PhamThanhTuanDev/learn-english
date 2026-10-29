@@ -137,3 +137,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Lệnh `php artisan tinker` trên server in cảnh báo `Unsuccessful stat on filename containing newline ... ea_php_cli.pm` nếu đoạn `--execute` có xuống dòng. Cảnh báo này vô hại.
 - Migration lỗi thì job deploy đỏ, mà code mới đã lên nhưng schema chưa đổi. Khi đó sửa rồi push lại; nếu lỗi để lại bảng dở thì xem `migrate:status` trước khi dọn.
 - `QUEUE_CONNECTION=sync`: chưa có cron chạy queue. Khi nào cần queue hay scheduler thì thêm cron `php artisan schedule:run`.
+
+## 2026-10-29 · P2-05 (HTTPS, xong Phase 2)
+**Đã làm**
+- Chứng chỉ AutoSSL (Let's Encrypt `YR2`) cho `english.minlish.site` còn hạn tới 26/01/2027.
+- Chốt với bạn (D14): ép HTTPS bằng rule trong `public/.htaccess`, kèm HSTS 1 năm (không `includeSubDomains`). Commit `9309daf`, deploy run 40828470843 xanh.
+- Kiểm tra bằng curl: http trả 301 sang https, giữ nguyên đường dẫn và query, file tĩnh cũng bị chuyển hướng. Mọi response đều có `Strict-Transport-Security: max-age=31536000`. `/.well-known/acme-challenge/…` không bị chuyển hướng, để AutoSSL gia hạn qua http.
+- Bạn đã thêm `SESSION_SECURE_COOKIE=true` vào `.env` trên server và chạy `optimize` trong Terminal cPanel (`config:show session.secure` = `true`). Cookie `learn-english-session` và `XSRF-TOKEN` đều có cờ `secure`; cookie phiên thêm `httponly` và `samesite=lax`.
+- Bạn đã đăng nhập được trên https://english.minlish.site và vào được `/dashboard`.
+- Phase 2 xong: push lên `main` là web tự cập nhật trên HTTPS.
+
+**Tiếp theo**
+- Phase 3, P3-01: xuất dữ liệu lộ trình từ `tools/roadmap/data.js` thành `database/data/roadmap.json`.
+
+**Lưu ý**
+- Khối `# php -- BEGIN cPanel-generated handler` cuối `public/.htaccess` vẫn giữ nguyên. Rule HTTPS nằm trong khối `mod_rewrite`, header HSTS nằm trong khối `mod_headers` riêng, cả hai đều ở trước khối handler.
+- Không bật nút Force HTTPS trong cPanel, vì rule trong repo đã làm việc đó; bật cả hai thì bị trùng.
+- HSTS: nếu chứng chỉ hết hạn, trình duyệt chặn hẳn trang, không cho bấm bỏ qua. Khi đó xem cPanel → SSL/TLS Status → Run AutoSSL. Cách bỏ HSTS ghi ở D14.
+- Ở phiên này, Claude bị chặn ghi `.env` qua SSH (auto mode chặn ghi trên server từ xa). Những lần sau cần sửa `.env` thì bạn chạy lệnh trong Terminal cPanel, hoặc thêm quyền cho Bash.
