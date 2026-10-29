@@ -306,3 +306,19 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Chưa push: `main` hơn origin 9 commit (gồm P3-05, P3-06, P4-01, P4-02). Có 3 migration mới (`words`, `cards`, `card_reviews`).
 - Tạo thẻ qua `$user->cards()->create([...])`; ghi lịch sử ôn chỉ qua `ReviewCard`, không ghi `card_reviews` trực tiếp.
 - Cột là `interval_days` vì `interval` là từ khóa của MariaDB.
+
+## 2026-10-29 · P4-03 (chọn từ mới theo giai đoạn)
+**Đã làm**
+- Chốt với bạn (D21): hết từ đúng mức thì lấy mức thấp hơn còn sót, rồi mức cao hơn, cuối cùng là từ chưa có mức; giai đoạn 5 lấy C1–C2 thay cho AWL; tuần thi thử 5 từ/ngày; ngày nghỉ và ngày bỏ lỡ không dồn. Tuần ôn trước cổng (13, 26, 39, 47, 65, 69) không thêm từ, đúng như ghi chú của tuần.
+- `App\Support\NewWordPlan` (hàm thuần): `quota($stage, $week)`, `stageLevels()`, `levelOrder()`. `App\Actions\AddNewCards::handle($user)`: lấy ngày lộ trình hôm nay, trừ số thẻ đã tạo từ 0 giờ (giờ người học), chọn từ chưa có thẻ theo thứ tự mức rồi id, tạo thẻ với `due_on` = hôm nay bằng `insertOrIgnore`. Trả về số thẻ đã thêm.
+- `WordFactory` (state `level()`), `Word` dùng `HasFactory`.
+- Test: `NewWordPlanTest` (2: thứ tự mức, hạn mức khớp ghi chú "Từ vựng" của cả 104 tuần), `AddNewCardsTest` (5 + 9 trường hợp hạn mức: 8 từ A1 đúng một lần, ngày theo giờ Việt Nam và không dồn ngày bỏ lỡ, thứ tự lấy khi hết mức, chưa bắt đầu thì không thêm). Cả bộ 138 test xanh.
+- Đã chạy thử trên MariaDB dev trong transaction rồi rollback: ngày 57 → 10 từ A1, 183 → 12 B1, 330 → 15 B2, 505 → 5 C1, 85 và 666 → 0; gọi lần hai đều ra 0.
+
+**Tiếp theo**
+- P4-04: màn hình ôn (Alpine). Khi mở màn hình thì gọi `AddNewCards` trước, rồi lấy thẻ có `due_on` ≤ hôm nay; trả lời qua `ReviewCard`.
+
+**Lưu ý**
+- Chưa push: `main` hơn origin 12 commit (P3-05, P3-06, P4-01, P4-02, P4-03). P4-03 không có migration mới.
+- `AddNewCards` chưa được gọi ở đâu; P4-04 sẽ gọi.
+- Thẻ mới được tạo bằng `insertOrIgnore` (nhanh, và hai request cùng lúc không làm vượt hạn mức), nên không đi qua `$user->cards()->create()`.
