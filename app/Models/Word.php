@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Database\Factories\WordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -21,5 +23,6 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['word', 'part_of_speech', 'pronunciation', 'meaning', 'definition', 'definition_vi', 'example', 'example_vi', 'level'])]
 class Word extends Model
 {
-    //
+    /** @use HasFactory<WordFactory> */
+    use HasFactory;
 }
