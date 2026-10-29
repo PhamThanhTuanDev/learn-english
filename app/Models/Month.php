@@ -33,4 +33,12 @@ class Month extends Model
     {
         return $this->hasMany(Week::class);
     }
+
+    /**
+     * @return HasMany<GateResult, $this>
+     */
+    public function gateResults(): HasMany
+    {
+        return $this->hasMany(GateResult::class);
+    }
 }

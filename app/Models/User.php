@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -37,6 +38,22 @@ class User extends Authenticatable
             'roadmap_start_date' => 'date',
             'daily_goal_minutes' => 'integer',
         ];
+    }
+
+    /**
+     * @return HasMany<DayCompletion, $this>
+     */
+    public function dayCompletions(): HasMany
+    {
+        return $this->hasMany(DayCompletion::class);
+    }
+
+    /**
+     * @return HasMany<GateResult, $this>
+     */
+    public function gateResults(): HasMany
+    {
+        return $this->hasMany(GateResult::class);
     }
 
     /**
