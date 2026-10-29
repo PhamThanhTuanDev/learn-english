@@ -103,7 +103,7 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - File được upload: `app`, `artisan`, `bootstrap`, `composer.json/lock`, `config`, `database`, `lang`, `public` (kèm `build`), `resources`, `routes`, `vendor` và các thư mục rỗng của `storage`. Không upload `.env*`, `.git*`, `node_modules`, `tests`, `docker`, `tools`, `docs`, `.claude` và các file cấu hình dev.
 
 **Tiếp theo**
-- Đã cài public key vào `~/.ssh/authorized_keys` (đã thử SSH bằng khóa này: được, server có rsync 3.1.3). Còn nhập secret `SSH_PRIVATE_KEY` rồi push để deploy lần đầu.
+- Deploy SSH lần đầu đã chạy xong (run 40822416790, push `b207473`). CI và deploy đều xanh: upload 6.654 file mất 8 giây, bước dọn file cũ chạy được. Server không có `.env`, còn `.well-known` vẫn nguyên. Web trả về 500 với lỗi `No application encryption key has been specified`, nghĩa là Laravel đã chạy được trên PHP 8.4, chỉ còn thiếu `.env`.
 - Có thể xóa 3 secrets `FTP_*` trên GitHub. Tài khoản FTP `deploy@english.minlish.site` thì giữ hay xóa tùy bạn, deploy không dùng nữa.
 - `v.php` và `symlink-test.txt` đã được xóa khỏi `public/`.
 - P2-04: `.env` production và migration. Giờ đã có SSH, nên migration có thể chạy ngay trong workflow.
