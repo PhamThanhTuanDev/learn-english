@@ -175,3 +175,28 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Câu chữ vẫn y như trong file Word, nên có chỗ nhắc "Phụ lục B/C", "mục Ghi nhớ ở trên", "xem đầu tháng". Khi làm giao diện (P3-04, P3-05) có thể cần sửa lại cho hợp với web.
 - `tools/roadmap/node_modules` (thư viện `docx`) chỉ cần khi sinh lại file Word, và đã nằm trong `.gitignore`.
 - Hai commit `docs` (P2-05) và `feat(P3-01)` chưa push. Push sẽ chạy deploy, việc này vô hại (`database/data/roadmap.json` sẽ lên server, P3-02 sẽ cần file này).
+
+## 2026-10-29 · P3-02 (bảng lộ trình + seeder)
+**Đã làm**
+- Chốt với bạn (D15): các phần chỉ để hiển thị lưu bằng cột JSON, và seeder chạy mỗi lần deploy.
+- Một migration `create_roadmap_tables` tạo 5 bảng:
+  - `roadmap_resources`: `code`, `name`, `source`, `usage`.
+  - `stages`: `number`, `title`, `goal`, `blocks` (JSON), `notes` (JSON).
+  - `months`: `number`, `stage_id`, `first_week`, `last_week`, `focus`, `gate`.
+  - `weeks`: `number`, `month_id`, `title`, `details` (JSON).
+  - `roadmap_days`: `number` từ 1 đến 728, `week_id`, `day` từ 1 đến 7, `label`, `task`, `is_rest`.
+  - Cột `number`/`code` là unique; các khóa ngoại dùng `constrained()`.
+- 5 model `Stage`, `Month`, `Week`, `RoadmapDay`, `RoadmapResource`, có quan hệ `Stage→months`, `Month→stage/weeks`, `Week→month/days`, `RoadmapDay→week`, và cast cho các cột JSON và `is_rest`.
+- `RoadmapSeeder` đọc `database/data/roadmap.json` và `upsert` theo `code`/`number` trong một transaction. Eloquent `upsert` không áp dụng cast, nên seeder tự `json_encode` các cột JSON. `DatabaseSeeder` gọi thêm seeder này.
+- `deploy.yml`: bước "Migrate, seed roadmap and cache" chạy `migrate` → `db:seed --class=RoadmapSeeder --force` → `optimize`.
+- Đã thử trên MariaDB 10.5 ở dev: migrate xong, seed 2 lần mỗi lần khoảng 0,3–0,6 giây, vẫn 728 ngày và id lớn nhất 728, cả 5 bảng InnoDB.
+- Test `tests/Feature/Database/RoadmapSeederTest.php` kiểm tra số lượng, chuỗi quan hệ ngày → tuần → tháng → giai đoạn, cột JSON đọc ra mảng, và chạy lại thì cập nhật tại chỗ.
+
+**Tiếp theo**
+- Lần push tới sẽ chạy migration và seeder trên production lần đầu. Cần xem job deploy xanh và production có đủ 728 dòng `roadmap_days`.
+- P3-03: bảng tiến độ `day_completions` (đã xong, số phút) và `gate_results`, đều có `user_id` và trỏ tới `roadmap_days.id` / `months.id`.
+
+**Lưu ý**
+- `main` có 5 commit chưa push (docs P2-05, feat + docs P3-01, feat + docs P3-02). Bạn chọn để tới khi task sau cần mới push.
+- Ngày thứ mấy của lộ trình (`User::roadmapDayNumber()`) khớp với `roadmap_days.number`, không phải `id`.
+- Seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc ngày khỏi lộ trình thì cần migration dọn riêng (xem D15).
