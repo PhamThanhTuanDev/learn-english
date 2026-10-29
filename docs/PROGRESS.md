@@ -155,3 +155,23 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Không bật nút Force HTTPS trong cPanel, vì rule trong repo đã làm việc đó; bật cả hai thì bị trùng.
 - HSTS: nếu chứng chỉ hết hạn, trình duyệt chặn hẳn trang, không cho bấm bỏ qua. Khi đó xem cPanel → SSL/TLS Status → Run AutoSSL. Cách bỏ HSTS ghi ở D14.
 - Ở phiên này, Claude bị chặn ghi `.env` qua SSH (auto mode chặn ghi trên server từ xa). Những lần sau cần sửa `.env` thì bạn chạy lệnh trong Terminal cPanel, hoặc thêm quyền cho Bash.
+
+## 2026-10-29 · P3-01 (xuất dữ liệu lộ trình ra JSON)
+**Đã làm**
+- Tách phần sinh lịch tuần/ngày khỏi `tools/roadmap/build.js` sang `tools/roadmap/schedule.js` (hàm `weekPlan(n)`, `REST_DAY`, `stageOf`, `monthOf`, `isMonthEnd`). File Word và file JSON giờ lấy cùng một nguồn. File Word sinh lại giống hệt bản cũ, chỉ khác mã liên kết ngẫu nhiên mà thư viện `docx` tạo mới mỗi lần chạy.
+- `tools/roadmap/export-json.js` sinh ra `database/data/roadmap.json` (~340 KB). Chạy bằng `cd tools/roadmap && npm run json`. Chỉ cần Node, không cần `npm install`. Script dừng với lỗi nếu tháng không nối tiếp nhau, tuần không khớp giai đoạn, hoặc tuần nào không đủ 6 ngày học.
+- Nội dung JSON:
+  - `resources`: 30 nguồn R0–R29 (`code`, `name`, `source`, `usage`). `source` có thể là 1 link, nhiều link nối bằng `  ·  `, hoặc chữ thường.
+  - `stages`: 6 giai đoạn (`number`, `title` không kèm "Giai đoạn n ·", `goal`, `blocks` [`title`, `minutes`, `description`], `notes`). Tổng các khối cố định mỗi giai đoạn đều là 120 phút.
+  - `months`: 24 tháng (`number`, `stage`, `first_week`, `last_week`, `focus`, `gate`).
+  - `weeks`: 104 tuần (`number`, `month`, `stage`, `title`, `details` [`label`, `text`, `highlight`], `days`). Mỗi tuần có 7 ngày (`number` từ 1 đến 728, `day` từ 1 đến 7, `label`, `task`, `rest`); Ngày 7 luôn là ngày nghỉ.
+- Test `tests/Unit/RoadmapDataTest.php` kiểm tra số lượng 6/24/104/728, đánh số liên tục, tuần nằm đúng tháng và giai đoạn, mỗi tuần 6 ngày học + 1 ngày nghỉ.
+
+**Tiếp theo**
+- P3-02: bảng `stages`, `months`, `weeks`, `roadmap_days` + seeder đọc `database/data/roadmap.json` (idempotent). Seeder cần chọn cách lưu `resources`, `blocks`, `details`, `notes`: bảng riêng hay cột JSON.
+
+**Lưu ý**
+- Muốn sửa nội dung lộ trình thì sửa `tools/roadmap/data.js` (hoặc `schedule.js`), chạy lại `npm run json`, rồi commit cả `data.js` lẫn `roadmap.json`. Không sửa tay file JSON.
+- Câu chữ vẫn y như trong file Word, nên có chỗ nhắc "Phụ lục B/C", "mục Ghi nhớ ở trên", "xem đầu tháng". Khi làm giao diện (P3-04, P3-05) có thể cần sửa lại cho hợp với web.
+- `tools/roadmap/node_modules` (thư viện `docx`) chỉ cần khi sinh lại file Word, và đã nằm trong `.gitignore`.
+- Hai commit `docs` (P2-05) và `feat(P3-01)` chưa push. Push sẽ chạy deploy, việc này vô hại (`database/data/roadmap.json` sẽ lên server, P3-02 sẽ cần file này).

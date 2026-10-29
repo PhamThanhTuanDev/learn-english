@@ -31,7 +31,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 **Xong khi:** push lên `main` → web tự cập nhật trên https://english.minlish.site.
 
 ## Phase 3 — Lộ trình 104 tuần
-- [ ] P3-01 Xuất dữ liệu lộ trình từ `tools/roadmap/data.js` thành `database/data/roadmap.json` (6 giai đoạn, 24 tháng, 104 tuần, 728 ngày)
+- [x] P3-01 Xuất dữ liệu lộ trình từ `tools/roadmap/data.js` thành `database/data/roadmap.json` (6 giai đoạn, 24 tháng, 104 tuần, 728 ngày)
 - [ ] P3-02 Bảng `stages`, `months`, `weeks`, `roadmap_days` + seeder đọc JSON (idempotent)
 - [ ] P3-03 Bảng tiến độ: `day_completions` (đã xong, số phút), `gate_results` (kết quả cổng kiểm tra)
 - [ ] P3-04 Trang **Hôm nay**: tuần/ngày hiện tại theo ngày bắt đầu, các khối cố định của giai đoạn, tick hoàn thành, nhập phút học
