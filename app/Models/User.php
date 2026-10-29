@@ -75,6 +75,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Whether the learner may tick this roadmap day: today, or an earlier day
+     * they are making up. Future days stay locked.
+     */
+    public function hasReachedRoadmapDay(int $number): bool
+    {
+        $today = $this->roadmapDayNumber();
+
+        return $today !== null && $number <= $today;
+    }
+
+    /**
      * The current time in the user's own timezone.
      *
      * Timestamps are stored in UTC; "today" in the roadmap must follow the

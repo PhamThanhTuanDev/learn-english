@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\RoadmapSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -41,6 +42,7 @@ class RoadmapDayTest extends TestCase
 
     public function test_the_dashboard_shows_the_current_week_and_day(): void
     {
+        $this->seed(RoadmapSeeder::class);
         // Day 11 of the roadmap: week 2, day 4.
         $user = User::factory()->create(['roadmap_start_date' => '2026-10-19'])->refresh();
 

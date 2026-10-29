@@ -1,13 +1,18 @@
 <?php
 
+use App\Http\Controllers\DayCompletionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudySettingsController;
+use App\Http\Controllers\TodayController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', TodayController::class)->name('dashboard');
+
+    Route::put('/days/{roadmapDay:number}/completion', [DayCompletionController::class, 'update'])->name('days.completion.update');
+    Route::delete('/days/{roadmapDay:number}/completion', [DayCompletionController::class, 'destroy'])->name('days.completion.destroy');
 
     Route::get('/settings', [StudySettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [StudySettingsController::class, 'update'])->name('settings.update');
