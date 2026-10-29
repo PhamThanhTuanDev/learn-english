@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # Force HTTPS on production (D14); AutoSSL validation paths stay reachable over HTTP
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP_HOST} ^english\.minlish\.site$ [NC]
+    RewriteCond %{REQUEST_URI} !^/\.well-known/(acme-challenge|cpanel-dcv|pki-validation)/
+    RewriteRule ^ https://english.minlish.site%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -22,6 +28,11 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# HSTS for english.minlish.site only (no includeSubDomains); browsers ignore it over HTTP
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000"
 </IfModule>
 
 # php -- BEGIN cPanel-generated handler, do not edit

@@ -48,3 +48,9 @@ Không dùng `rsync --delete`. Workflow ghi danh sách file đã deploy vào `~/
 Mỗi lần deploy, workflow SSH vào server chạy `php artisan migrate --force` rồi `php artisan optimize`. Tài khoản chủ tạo bằng `php artisan app:create-owner` trong Terminal cPanel (mật khẩu nhập ẩn), không qua `OWNER_PASSWORD` trong `.env`.
 Bảng MariaDB luôn tạo bằng InnoDB (`engine` trong `config/database.php`), vì MariaDB của hosting mặc định dùng MyISAM: không có transaction, không có khóa ngoại, và key tối đa 1000 byte.
 Lý do: có SSH nên migration chạy tự động được, push là xong, không phải nhớ làm tay. Mật khẩu không bao giờ nằm trong repo, trong GitHub hay trong lịch sử lệnh.
+
+## D14 · 2026-10-29 · Ép HTTPS bằng rule trong `public/.htaccess`, có HSTS
+Rule trong `public/.htaccess` chuyển hướng 301 mọi request http tới `english.minlish.site` sang `https://english.minlish.site`, giữ nguyên đường dẫn và query. Bỏ qua `/.well-known/acme-challenge/`, `cpanel-dcv/` và `pki-validation/` để AutoSSL vẫn xác thực được qua http khi gia hạn chứng chỉ. Rule chỉ áp dụng cho đúng host này, nên dev (`php artisan serve`, không đọc `.htaccess`) không bị ảnh hưởng.
+Header `Strict-Transport-Security: max-age=31536000` (1 năm, không `includeSubDomains`, nên các subdomain khác của `minlish.site` không bị ảnh hưởng). Cookie luôn có cờ Secure nhờ `SESSION_SECURE_COOKIE=true` trong `.env` trên server.
+Lý do: rule nằm trong git và đi theo mỗi lần deploy, và chuyển hướng được cả file tĩnh. Nút Force HTTPS của cPanel không nằm trong repo. Còn redirect trong Laravel thì không chặn được file tĩnh, vì LiteSpeed trả các file này trực tiếp.
+Đánh đổi của HSTS: nếu AutoSSL gia hạn lỗi và chứng chỉ hết hạn, trình duyệt sẽ chặn hẳn trang, không cho bấm bỏ qua. Khi đó sửa chứng chỉ trong cPanel → SSL/TLS Status. Muốn bỏ HSTS thì đặt `max-age=0` và đợi trình duyệt nhận header mới; không chỉ xóa header là xong.
