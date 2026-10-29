@@ -41,7 +41,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 **Xong khi:** dùng web thay cho việc tick ô trong file Word.
 
 ## Phase 4 — Flashcard lặp lại ngắt quãng
-- [ ] P4-01 Bảng `words` + lệnh `app:import-vocabulary` đọc CSV (upsert theo từ + loại từ; chuẩn hóa level rỗng/`undefined`/`intermediate`); test
+- [x] P4-01 Bảng `words` + lệnh `app:import-vocabulary` đọc CSV (upsert theo từ + loại từ; chuẩn hóa level rỗng/`undefined`/`intermediate`); test
 - [ ] P4-02 Bảng `cards` + thuật toán lập lịch ôn (SM-2 trước, có unit test; cân nhắc FSRS sau) *(cần chốt thuật toán)*
 - [ ] P4-03 Chọn từ mới theo giai đoạn: 8/10/12/15/10 từ mỗi ngày, đúng mức CEFR
 - [ ] P4-04 Màn hình ôn (Alpine): lật thẻ, phát âm bằng giọng đọc của trình duyệt, 4 nút Again/Hard/Good/Easy, phím tắt

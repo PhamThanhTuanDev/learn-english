@@ -272,3 +272,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Chưa push: `main` có `de7ef28`, 2 commit của P3-05 và 2 commit của P3-06. Không có migration mới.
 - Chuỗi ngày dựa vào ngày bắt đầu hiện tại để biết ngày nào là ngày nghỉ; đổi ngày bắt đầu thì ngày nghỉ dịch theo.
 - Cửa sổ app bị ẩn thì trình duyệt dựng sẵn không chụp màn hình hay click được; đăng nhập bằng `requestSubmit()` và kiểm tra bố cục bằng số đo DOM.
+
+## 2026-10-29 · P4-01 (bảng từ vựng và lệnh import)
+**Đã làm**
+- Chốt với bạn (D19): commit CSV vào repo dù repo public; level không phải CEFR thì để trống.
+- Bảng `words` (`word`, `part_of_speech`, `pronunciation`, `meaning`, `definition`, `definition_vi`, `example`, `example_vi`, `level`), unique theo `word` + `part_of_speech`, index `level`. Model `Word`.
+- `database/data/vocabulary.csv` (bản chép của `../vocabulary-set-33.csv`, có BOM).
+- Lệnh `app:import-vocabulary [path]`: đọc theo tên cột ở dòng đầu (bỏ BOM), cần cột `word` và `meaning`; upsert 500 dòng một lần trong transaction; in "Đã nhập N từ, bỏ qua M dòng."
+- Deploy chạy thêm `php artisan app:import-vocabulary` sau RoadmapSeeder.
+- Test `ImportVocabularyCommandTest` (5): chuẩn hóa level và loại từ, chạy lại cập nhật tại chỗ và giữ từ đã bỏ, bỏ qua dòng thiếu và giữ dòng trùng cuối, báo lỗi khi thiếu file/cột, import file thật (7.463 từ). Cả bộ 114 test xanh.
+- Đã chạy ở dev (MariaDB) hai lần: vẫn 7.463 từ; level A1 808, A2 629, B1 593, B2 1.347, C1 1.130, C2 236, null 2.720; 348 từ không có loại từ.
+
+**Tiếp theo**
+- P4-02: bảng `cards` + thuật toán lập lịch ôn *(cần chốt: SM-2 hay FSRS)*.
+
+**Lưu ý**
+- Chưa push: `main` có `de7ef28`, 2 commit của P3-05, 2 commit của P3-06 và 2 commit của P4-01. Có migration mới (`words`); lần deploy tới sẽ tạo bảng và import khoảng 7.500 từ.
+- Ở dev, import mất khoảng 8 giây (Docker trên ổ D). Test import file thật mất vài giây trong bộ test.
+- Sửa CSV thì sửa `database/data/vocabulary.csv` trong repo rồi deploy; file ở thư mục cha không còn được dùng.
