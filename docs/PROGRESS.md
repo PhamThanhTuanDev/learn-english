@@ -319,6 +319,28 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - P4-04: màn hình ôn (Alpine). Khi mở màn hình thì gọi `AddNewCards` trước, rồi lấy thẻ có `due_on` ≤ hôm nay; trả lời qua `ReviewCard`.
 
 **Lưu ý**
-- Chưa push: `main` hơn origin 13 commit (P3-05, P3-06, P4-01, P4-02, P4-03). P4-03 không có migration mới.
+- Chưa push: `main` hơn origin 12 commit (P3-05, P3-06, P4-01, P4-02, P4-03). P4-03 không có migration mới.
 - `AddNewCards` chưa được gọi ở đâu; P4-04 sẽ gọi.
 - Thẻ mới được tạo bằng `insertOrIgnore` (nhanh, và hai request cùng lúc không làm vượt hạn mức), nên không đi qua `$user->cards()->create()`.
+
+## 2026-10-29 · P4-04 (màn hình ôn flashcard)
+**Đã làm**
+- `/flashcards` (thay trang "sắp có"): `FlashcardController@index` gọi `AddNewCards` trước, rồi lấy mọi thẻ có hạn đến hôm nay. Thẻ đã ôn xếp trước (theo hạn rồi id), thẻ mới xếp sau. `POST /flashcards/{card}/review` (`flashcards.review`) nhận `rating` 1–4, chấm qua `ReviewCard`, trả JSON `{due_on, due_today}`. Thẻ của người khác trả 404.
+- Component Alpine `flashcardReview` (`resources/js/flashcard-review.js`, đăng ký trong `app.js`) và view `flashcards/index.blade.php`:
+  - Mặt trước: từ, loại từ, phiên âm, mức, nhãn "Từ mới", nút Nghe. Mặt sau: nghĩa tiếng Việt, định nghĩa Anh–Việt, câu ví dụ kèm nút nghe.
+  - 4 nút Quên/Khó/Nhớ/Dễ (`Rating::label()`). Thẻ bấm Quên quay lại cuối hàng.
+  - Đếm số thẻ còn lại, số từ mới và số lần đã trả lời; có màn hình "Xong!". Chưa chọn ngày bắt đầu thì có hướng dẫn và link tới Cài đặt học.
+- Phát âm dùng `speechSynthesis` của trình duyệt, ưu tiên giọng en-GB (khớp phiên âm Oxford), tốc độ 0,9. Tự đọc từ khi lật thẻ, vì trình duyệt chặn đọc khi người dùng chưa bấm gì.
+- Phím tắt: Space/Enter lật thẻ, 1–4 chấm, P nghe lại; bỏ qua khi đang ở ô nhập hoặc link, hoặc khi có giữ Ctrl/Alt/Cmd. Đang lưu thì bỏ qua lần bấm tiếp.
+- Test `FlashcardReviewTest` (4): thứ tự hàng thẻ và thêm từ mới, chưa có ngày bắt đầu, chấm Nhớ rồi Quên, bắt buộc rating hợp lệ và đúng chủ thẻ (khách bị chuyển sang đăng nhập). Cả bộ 142 test xanh.
+- Đã thử ở dev bằng tài khoản tạm (đã xóa): lật bằng phím và bằng click, Quên đưa thẻ về cuối hàng, tải lại trang thì thẻ đó lên đầu và không thêm từ mới lần nữa, ôn hết thì hiện "Xong!". DB khớp: 8 thẻ, 9 lần ôn. Khổ 375px không tràn ngang, 4 nút 80×62px.
+
+**Tiếp theo**
+- P4-05: thống kê flashcard (thẻ đến hạn, đã học, tỉ lệ nhớ) từ `cards` và `card_reviews`.
+
+**Lưu ý**
+- Chưa push: `main` hơn origin 14 commit (P3-05 → P4-04). Không có migration mới.
+- Lọc thẻ đến hạn bằng `due_on < ngày mai`, không dùng `<= hôm nay`: SQLite (test) lưu cột date qua cast thành `Y-m-d 00:00:00`, so chuỗi với `Y-m-d` bị sai. MariaDB thì không bị.
+- Tài khoản owner trên dev đã có 8 thẻ, tạo khi trang `/flashcards` được mở lúc 16:21 ngày 29/10. Đó không phải dữ liệu thử nên mình giữ nguyên.
+- Khung trình duyệt dựng sẵn bị ẩn thì Alpine vẽ lại trễ (x-show dùng requestAnimationFrame); kiểm tra bằng `Alpine.$data()` và chờ một lúc rồi đo DOM.
+- `public/build` không commit; CI tự build. Ở dev chạy `npm run build` (hoặc `npm run dev`) sau khi sửa JS.
