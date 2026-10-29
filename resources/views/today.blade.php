@@ -1,3 +1,5 @@
+@use('App\Support\StudyStats')
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -44,6 +46,31 @@
                     </div>
                 </div>
             </div>
+
+            @if ($stats !== null)
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 px-4 sm:px-0">
+                    <div class="bg-white shadow-sm rounded-lg p-4 sm:p-6">
+                        <p class="text-sm text-gray-600">Hoàn thành lộ trình</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ number_format($stats->percentDone(), 1, ',', '.') }}%</p>
+                        <p class="mt-1 text-sm text-gray-500">{{ $stats->doneDays }}/{{ $stats->totalDays }} ngày</p>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-4 sm:p-6">
+                        <p class="text-sm text-gray-600">Chuỗi ngày học</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $stats->currentStreak }} ngày</p>
+                        <p class="mt-1 text-sm text-gray-500">Dài nhất: {{ $stats->longestStreak }} ngày</p>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-4 sm:p-6">
+                        <p class="text-sm text-gray-600">Tổng thời gian học</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ StudyStats::duration($stats->totalMinutes) }}</p>
+                        <p class="mt-1 text-sm text-gray-500">Trung bình {{ $stats->averageMinutes() }} phút/ngày đã xong</p>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-4 sm:p-6">
+                        <p class="text-sm text-gray-600">Cổng tháng đã đạt</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $stats->gatesPassed }}/{{ $stats->totalGates }}</p>
+                        <p class="mt-1 text-sm"><a href="{{ route('roadmap') }}" class="underline text-indigo-600 hover:text-indigo-800">Xem lộ trình</a></p>
+                    </div>
+                </div>
+            @endif
 
             @if ($day !== null)
                 @php
@@ -148,6 +175,34 @@
                         </div>
                     </div>
                 @endif
+            @endif
+
+            @if ($stats !== null && $stats->months !== [])
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900">
+                        <h3 class="text-lg font-medium">Thời gian học theo tháng</h3>
+                        <p class="mt-1 text-sm text-gray-600">Theo tháng của lộ trình; ngày học bù tính vào tháng của ngày đó.</p>
+
+                        <ul class="mt-4 space-y-3">
+                            @foreach ($stats->months as $month)
+                                <li class="sm:flex sm:items-center sm:gap-4">
+                                    <p class="sm:w-36 shrink-0">
+                                        <a href="{{ route('roadmap.months.show', $month['number']) }}" class="font-medium underline text-indigo-600 hover:text-indigo-800">Tháng {{ $month['number'] }}</a>
+                                        @if ($month['current'])
+                                            <span class="ms-1 text-xs font-medium text-indigo-700">đang học</span>
+                                        @endif
+                                    </p>
+                                    <div class="mt-1 sm:mt-0 h-3 flex-1 rounded-full bg-gray-100" aria-hidden="true">
+                                        <div class="h-3 rounded-full bg-indigo-500" style="width: {{ $month['share'] }}%"></div>
+                                    </div>
+                                    <p class="mt-1 sm:mt-0 sm:w-44 shrink-0 text-sm text-gray-700 sm:text-right">
+                                        {{ StudyStats::duration($month['minutes']) }} · {{ $month['days'] }} ngày
+                                    </p>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
             @endif
         </div>
     </div>

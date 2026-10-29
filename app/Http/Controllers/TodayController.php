@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RoadmapDay;
 use App\Models\RoadmapResource;
+use App\Support\StudyStats;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,16 +12,18 @@ use Illuminate\View\View;
 class TodayController extends Controller
 {
     /**
-     * Show today's roadmap day: the task, the stage's fixed blocks and the week.
+     * Show today's roadmap day (the task, the stage's fixed blocks and the
+     * week) with the learner's progress figures.
      */
     public function __invoke(Request $request): View
     {
         $user = $request->user();
         $number = $user->roadmapDayNumber();
         $day = $number === null ? null : RoadmapDay::with('week.month.stage')->where('number', $number)->first();
+        $stats = $number === null ? null : StudyStats::for($user);
 
         if ($day === null) {
-            return view('today', compact('user', 'number', 'day'));
+            return view('today', compact('user', 'number', 'day', 'stats'));
         }
 
         $week = $day->week;
@@ -39,6 +42,7 @@ class TodayController extends Controller
             'stage' => $stage,
             'weekDays' => $weekDays,
             'completions' => $completions,
+            'stats' => $stats,
             'resources' => $this->resourcesMentionedIn([
                 $day->task,
                 ...array_column($stage->blocks, 'description'),
