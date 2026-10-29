@@ -24,7 +24,8 @@ class DayCompletionController extends Controller
 
         $completion->save();
 
-        return back()->with('status', 'day-saved');
+        // The week page has one form per day: saved_day tells it which one.
+        return back()->with(['status' => 'day-saved', 'saved_day' => $roadmapDay->number]);
     }
 
     /**

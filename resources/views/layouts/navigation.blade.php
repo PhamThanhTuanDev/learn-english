@@ -23,7 +23,7 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @foreach ($navItems as $route => $label)
-                        <x-nav-link :href="route($route)" :active="request()->routeIs($route)">
+                        <x-nav-link :href="route($route)" :active="request()->routeIs($route, $route.'.*')">
                             {{ $label }}
                         </x-nav-link>
                     @endforeach
@@ -84,7 +84,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @foreach ($navItems as $route => $label)
-                <x-responsive-nav-link :href="route($route)" :active="request()->routeIs($route)">
+                <x-responsive-nav-link :href="route($route)" :active="request()->routeIs($route, $route.'.*')">
                     {{ $label }}
                 </x-responsive-nav-link>
             @endforeach

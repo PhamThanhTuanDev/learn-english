@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * @property int $number
@@ -35,10 +36,27 @@ class Month extends Model
     }
 
     /**
+     * @return HasManyThrough<RoadmapDay, Week, $this>
+     */
+    public function days(): HasManyThrough
+    {
+        return $this->hasManyThrough(RoadmapDay::class, Week::class);
+    }
+
+    /**
      * @return HasMany<GateResult, $this>
      */
     public function gateResults(): HasMany
     {
         return $this->hasMany(GateResult::class);
+    }
+
+    /**
+     * The roadmap day the end-of-month gate opens on: day 1 of the month's
+     * last week, so a gate taken a few days early can still be recorded.
+     */
+    public function gateOpensOnDay(): int
+    {
+        return ($this->last_week - 1) * 7 + 1;
     }
 }

@@ -33,26 +33,13 @@
                                 Giai đoạn {{ $stage->number }}: {{ $stage->title }} · mục tiêu {{ $user->daily_goal_minutes }} phút
                             </p>
 
-                            <ol class="mt-4 grid grid-cols-7 gap-2 max-w-md" aria-label="Các ngày trong tuần">
-                                @foreach ($weekDays as $weekDay)
-                                    @php
-                                        $done = $completions->has($weekDay->id);
-                                        $current = $weekDay->number === $day->number;
-                                    @endphp
-                                    <li title="{{ $weekDay->label }}{{ $done ? ' – đã xong' : '' }}"
-                                        @class([
-                                            'rounded-md py-2 text-center text-sm',
-                                            'bg-green-100 text-green-800' => $done,
-                                            'bg-gray-100 text-gray-600' => ! $done && $weekDay->number < $day->number,
-                                            'border border-dashed border-gray-300 text-gray-400' => ! $done && $weekDay->number > $day->number,
-                                            'border border-gray-300 text-gray-700' => ! $done && $current,
-                                            'ring-2 ring-indigo-500' => $current,
-                                        ])>
-                                        N{{ $weekDay->day }}
-                                        <span class="block text-xs">{{ $done ? '✓' : ($weekDay->is_rest ? 'nghỉ' : '·') }}</span>
-                                    </li>
-                                @endforeach
-                            </ol>
+                            <x-week-days class="mt-4" :days="$weekDays" :completions="$completions" :today="$day->number" />
+
+                            <p class="mt-3 text-sm">
+                                <a href="{{ route('roadmap.weeks.show', $week->number) }}" class="underline text-indigo-600 hover:text-indigo-800">Xem cả tuần {{ $week->number }}</a>
+                                ·
+                                <a href="{{ route('roadmap.months.show', $week->month->number) }}" class="underline text-indigo-600 hover:text-indigo-800">Tháng {{ $week->month->number }} và cổng kiểm tra</a>
+                            </p>
                         @endif
                     </div>
                 </div>

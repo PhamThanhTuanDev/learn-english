@@ -75,6 +75,19 @@ class User extends Authenticatable
     }
 
     /**
+     * The calendar date of a roadmap day for this learner, or null without a
+     * start date.
+     */
+    public function roadmapDayDate(int $number): ?CarbonImmutable
+    {
+        if ($this->roadmap_start_date === null) {
+            return null;
+        }
+
+        return CarbonImmutable::parse($this->roadmap_start_date->toDateString())->addDays($number - 1);
+    }
+
+    /**
      * Whether the learner may tick this roadmap day: today, or an earlier day
      * they are making up. Future days stay locked.
      */

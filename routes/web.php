@@ -1,9 +1,13 @@
 <?php
 
 use App\Http\Controllers\DayCompletionController;
+use App\Http\Controllers\GateResultController;
+use App\Http\Controllers\MonthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\StudySettingsController;
 use App\Http\Controllers\TodayController;
+use App\Http\Controllers\WeekController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -14,11 +18,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/days/{roadmapDay:number}/completion', [DayCompletionController::class, 'update'])->name('days.completion.update');
     Route::delete('/days/{roadmapDay:number}/completion', [DayCompletionController::class, 'destroy'])->name('days.completion.destroy');
 
+    Route::get('/roadmap', RoadmapController::class)->name('roadmap');
+    Route::get('/roadmap/months/{month:number}', [MonthController::class, 'show'])->name('roadmap.months.show');
+    Route::get('/roadmap/weeks/{week:number}', [WeekController::class, 'show'])->name('roadmap.weeks.show');
+
+    Route::put('/months/{month:number}/gate', [GateResultController::class, 'update'])->name('months.gate.update');
+    Route::delete('/months/{month:number}/gate', [GateResultController::class, 'destroy'])->name('months.gate.destroy');
+
     Route::get('/settings', [StudySettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [StudySettingsController::class, 'update'])->name('settings.update');
 
     // Placeholders until each feature lands (see docs/ROADMAP.md).
-    Route::view('/roadmap', 'coming-soon', ['title' => 'Lộ trình', 'phase' => 'Phase 3'])->name('roadmap');
     Route::view('/flashcards', 'coming-soon', ['title' => 'Flashcard', 'phase' => 'Phase 4'])->name('flashcards');
     Route::view('/mistakes', 'coming-soon', ['title' => 'Sổ lỗi', 'phase' => 'Phase 5'])->name('mistakes');
     Route::view('/scores', 'coming-soon', ['title' => 'Điểm số', 'phase' => 'Phase 6'])->name('scores');
