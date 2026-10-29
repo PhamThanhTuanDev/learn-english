@@ -218,3 +218,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 **Lưu ý**
 - `main` có 7 commit chưa push (thêm feat + docs P3-03). Push đầu tiên sẽ chạy cả migration P3-02, P3-03 và `RoadmapSeeder` trên production.
 - Cột thời điểm của bảng học viên nên dùng `datetime`, không dùng `timestamp` (xem D16).
+
+## 2026-10-29 · P3-04 (trang Hôm nay)
+**Đã làm**
+- `/dashboard` (tên route vẫn là `dashboard`) do `TodayController` xử lý, view đổi tên thành `today.blade.php`. Trang lấy ngày `number = roadmapDayNumber()` từ DB và hiển thị:
+  - Tuần/ngày, tên tuần, tháng, giai đoạn, mục tiêu phút.
+  - Dải 7 ô N1–N7 của tuần: ô xanh là ngày đã xong, ô có viền chấm là ngày chưa tới, ô có vòng tím là hôm nay.
+  - Việc của hôm nay, form nhập số phút (điền sẵn mục tiêu mỗi ngày), nút "Đánh dấu đã xong", sau khi tick thì có "Lưu số phút" và "Bỏ đánh dấu đã xong". Giờ tick hiển thị theo múi giờ người dùng.
+  - Các khối cố định của giai đoạn (kèm tổng phút), các dòng thông tin của tuần (dòng `highlight` có nền vàng nhạt), và các tài liệu R0–R29 được nhắc tới trên trang (lấy mã `R\d+` trong các đoạn văn, có link nếu nguồn là URL).
+- `PUT /days/{number}/completion` tick ngày hoặc sửa số phút (0–600). `DELETE` cùng đường dẫn bỏ tick. Chỉ tick được hôm nay và các ngày trước (học bù), ngày tương lai trả về 403 (`User::hasReachedRoadmapDay()`). Lưu lại thì đổi số phút nhưng giữ `completed_at` của lần tick đầu.
+- Test: `TodayPageTest` (4), `DayCompletionTest` (12). `RoadmapDayTest` nay phải seed lộ trình vì trang Hôm nay đọc từ DB.
+- Đã xem trên trình duyệt ở dev bằng một tài khoản thử tạm thời (đã xóa sau khi xem): tick 95 phút, trang hiện "Đã xong lúc 14:06 29/10/2026 · 95 phút", ô N3 chuyển xanh.
+
+**Tiếp theo**
+- P3-05: trang tuần/tháng. Có thể dùng lại route `days.completion.update/destroy` cho việc đánh dấu bù, và thêm form nhập kết quả cổng kiểm tra (`gate_results`).
+
+**Lưu ý**
+- `main` có 9 commit chưa push. Push đầu tiên sẽ chạy migration P3-02, P3-03 và `RoadmapSeeder` trên production. Nếu seeder chưa chạy thì trang Hôm nay chỉ còn lời chào (không lỗi).
+- Nút bấm chính của Breeze tự viết hoa toàn bộ chữ ("ĐÁNH DẤU ĐÃ XONG").
