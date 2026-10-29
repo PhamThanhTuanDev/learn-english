@@ -95,7 +95,7 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 
 ## 2026-10-29 · P2-03 (workflow deploy)
 **Đã làm**
-- Kiểm tra PHP qua web: `v.php` trả về `8.4.27`, nên giữ nguyên `public/.htaccess` của Laravel, không thêm handler.
+- Kiểm tra PHP qua web: `v.php` trả về `8.4.27`. Lúc thử, docroot đã có sẵn `public/.htaccess` do cPanel tự sinh lúc 05:46 ngày 29/10, chỉ gồm khối handler `ea-php81`. Có handler đó mà CloudLinux PHP Selector vẫn chạy 8.4. Vì vậy đã chép nguyên văn khối handler vào cuối `public/.htaccess` của repo: deploy giữ đúng cấu hình đã thử, và khi cPanel ghi lại khối này thì nội dung vẫn như cũ.
 - `.github/workflows/deploy.yml`: khi push lên `main` (hoặc bấm *Run workflow*), workflow gọi `ci.yml` trước. CI xanh thì job `deploy` mới chạy: `composer install --no-dev --optimize-autoloader`, `npm ci && npm run build`, gom file vào một thư mục release, rồi `rsync` qua SSH lên `~/learn-english`.
 - `ci.yml` giờ chạy khi có `pull_request` hoặc được gọi qua `workflow_call`. Đã bỏ `push: main` để mỗi lần push CI không chạy 2 lần.
 - Bản đầu dùng FTPS. Lần deploy thử (run 40816495601) có CI và build xanh, nhưng bước upload lỗi `500 This security scheme is not implemented`: hosting đã tắt TLS cho FTP, và chỉ admin hosting mới bật được. Lỗi xảy ra trước khi gửi tài khoản, nên chưa có file nào lên server. Theo lựa chọn của bạn, deploy chuyển sang SSH (D12).
@@ -103,13 +103,15 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - File được upload: `app`, `artisan`, `bootstrap`, `composer.json/lock`, `config`, `database`, `lang`, `public` (kèm `build`), `resources`, `routes`, `vendor` và các thư mục rỗng của `storage`. Không upload `.env*`, `.git*`, `node_modules`, `tests`, `docker`, `tools`, `docs`, `.claude` và các file cấu hình dev.
 
 **Tiếp theo**
-- Bạn cài public key vào `~/.ssh/authorized_keys` (lệnh trong Terminal của cPanel), nhập 5 secrets `SSH_*`, rồi push để deploy lần đầu.
+- Đã cài public key vào `~/.ssh/authorized_keys` (đã thử SSH bằng khóa này: được, server có rsync 3.1.3). Còn nhập secret `SSH_PRIVATE_KEY` rồi push để deploy lần đầu.
 - Có thể xóa 3 secrets `FTP_*` trên GitHub. Tài khoản FTP `deploy@english.minlish.site` thì giữ hay xóa tùy bạn, deploy không dùng nữa.
-- Trên hosting: xóa `public/v.php` và `public/symlink-test.txt` nếu chưa xóa.
+- `v.php` và `symlink-test.txt` đã được xóa khỏi `public/`.
 - P2-04: `.env` production và migration. Giờ đã có SSH, nên migration có thể chạy ngay trong workflow.
 
 **Lưu ý**
-- Server SSH: `turboweb-082302.inet.vn`, cổng 65333, user `qdgjatryhosting`. Cổng 22 bị chặn.
+- Server SSH: `turboweb-082302.inet.vn`, cổng 65333, user `qdgjatryhosting`. Cổng 22 bị chặn. Giờ server là +07.
+- Đừng xóa hay sửa khối `# php -- BEGIN cPanel-generated handler` trong `public/.htaccess`. Muốn đổi phiên bản PHP thì đổi trong cPanel trước, rồi chép khối mới mà cPanel sinh ra vào repo.
+- Trên server, `~/learn-english/.ftpquota` là file của Pure-FTPd; deploy không đụng tới nó.
 - Không dùng `rsync --delete`. Workflow ghi danh sách file đã deploy vào `~/learn-english/.deploy-manifest`, và chỉ xóa những file có ở lần trước mà lần này không còn. Ngoài ra luôn bỏ qua `.env*`, `storage/*`, `public/.well-known/*`. Nếu xóa file manifest thì lần sau không xóa gì cả.
 - `rsync --checksum --delay-updates`: chỉ gửi file thay đổi, và đợi đến cuối mới thay file mới vào, nên thời gian web bị lẫn file cũ/mới rất ngắn. Quyền file được đặt về 644, thư mục 755.
 - Khóa SSH có quyền trên cả tài khoản cPanel (8 domain), nên không đưa khóa bí mật cho ai và không commit. Nếu lộ: xóa dòng tương ứng trong `~/.ssh/authorized_keys` và tạo khóa mới.
