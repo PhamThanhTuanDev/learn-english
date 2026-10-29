@@ -236,3 +236,23 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 **Lưu ý**
 - Đã push 9 commit (đến `1d527e0`) ngày 29/10. Job Deploy xanh: bước `migrate` → `db:seed --class=RoadmapSeeder` → `optimize` chạy nối bằng `&&` và thành công, nên production đã có các bảng P3-02, P3-03 và dữ liệu lộ trình. Chưa đếm trực tiếp số dòng `roadmap_days` trên production.
 - Nút bấm chính của Breeze tự viết hoa toàn bộ chữ ("ĐÁNH DẤU ĐÃ XONG").
+
+## 2026-10-29 · P3-05 (trang tuần/tháng, học bù, cổng kiểm tra)
+**Đã làm**
+- Chốt với bạn (D17): trang 3 cấp; cổng mở từ ngày đầu tuần cuối tháng; có nút xóa kết quả cổng.
+- `/roadmap` (`RoadmapController`): 24 tháng xếp theo giai đoạn, mỗi tháng có số ngày đã xong / tổng số ngày, trạng thái cổng ("Cổng: ✓ Đạt", "✗ Chưa đạt", "chưa kiểm tra"). Tháng đang học có nền tím nhạt, có link tới tuần hiện tại.
+- `/roadmap/months/{n}` (`MonthController@show`): trọng tâm tháng, các tuần (link + dải N1–N7 + x/7 ngày), khối "Cổng kiểm tra cuối tháng" (`#gate`): nội dung cổng, kết quả đã lưu (giờ theo múi giờ người dùng), form Đạt/Chưa đạt + ghi chú (≤ 2000 ký tự), nút "Xóa kết quả" (có hộp xác nhận). Chưa tới tuần cuối thì báo ngày mở cổng.
+- `/roadmap/weeks/{n}` (`WeekController@show`): 7 ngày kèm ngày theo lịch, việc cần làm, trạng thái. Ngày đã tới có form số phút (nút "Đánh dấu học bù" cho ngày đã qua, "Đánh dấu đã xong" cho hôm nay), ngày tương lai ghi "Chưa tới ngày này.". Tick muộn hơn ngày theo lịch thì hiện "· học bù". Tuần cuối tháng có link sang cổng.
+- `PUT/DELETE /months/{n}/gate` (`GateResultController`, `UpdateGateResultRequest`): lưu qua `$user->gateResults()->updateOrCreate(...)`, `checked_at = now()`. Trước khi mở cổng trả 403.
+- Dải N1–N7 tách thành component `<x-week-days>` (dùng ở Hôm nay, trang tháng, trang tuần). Trang Hôm nay có link "Xem cả tuần" và "Tháng N và cổng kiểm tra". Menu "Lộ trình" sáng cả ở trang con.
+- Thêm `Month::days()` (hasManyThrough), `Month::gateOpensOnDay()`, `User::roadmapDayDate()`. `DayCompletionController@update` flash thêm `saved_day` để trang tuần biết form nào vừa lưu.
+- Test: `RoadmapPagesTest` (10), `GateResultTest` (8). Cả bộ 103 test xanh.
+- Đã xem ở dev bằng tài khoản thử tạm thời (đã xóa): lưu cổng "Chưa đạt" kèm ghi chú, đánh dấu học bù N3, trang danh sách tháng hiện "3/28 ngày · Cổng: ✗ Chưa đạt".
+
+**Tiếp theo**
+- P3-06: Dashboard (% hoàn thành, chuỗi ngày học liên tiếp, tổng giờ theo tháng).
+
+**Lưu ý**
+- Chưa push: `main` có `de7ef28` và 2 commit của P3-05. Không có migration mới.
+- Trang tuần có nhiều form cùng tên `minutes`: mỗi form gửi kèm `day` (input ẩn) để chỉ form vừa gửi hiện lại giá trị cũ và lỗi.
+- Test tạo user bằng factory phải `->refresh()`, nếu không `timezone` còn null và "hôm nay" bị tính theo UTC.

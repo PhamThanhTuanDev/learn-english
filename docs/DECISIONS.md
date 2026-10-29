@@ -66,3 +66,8 @@ Giới hạn: seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc 
 - `gate_results`: mỗi người một kết quả cho mỗi tháng, làm lại thì ghi đè. Cột `passed`, `note` (được để trống), `checked_at` (UTC). Điểm chi tiết từng kỹ năng để P6-01 làm bảng riêng.
 - Cả hai bảng unique theo `user_id` + ngày/tháng; xóa người dùng thì xóa luôn tiến độ của họ.
 - Cột thời điểm dùng kiểu `datetime`, không dùng `timestamp`. Trên MariaDB 10.5 (`explicit_defaults_for_timestamp` = 0), cột `timestamp NOT NULL` đầu tiên của bảng tự nhận `ON UPDATE CURRENT_TIMESTAMP`, nên sửa số phút sẽ làm `completed_at` đổi theo.
+
+## D17 · 2026-10-29 · Trang lộ trình 3 cấp, cổng tháng mở từ tuần cuối và xóa được
+- Ba trang: `/roadmap` (24 tháng theo giai đoạn) → `/roadmap/months/{n}` (các tuần + cổng cuối tháng) → `/roadmap/weeks/{n}` (7 ngày, tick và học bù).
+- Kết quả cổng của một tháng nhập được từ ngày 1 của tuần cuối tháng (`Month::gateOpensOnDay()`), để làm cổng sớm vài ngày vẫn ghi được. Sau đó lúc nào cũng nhập hoặc sửa được (khi học bù).
+- Có nút xóa kết quả cổng: xóa dòng `gate_results`, tháng quay về "chưa kiểm tra". Làm lại cổng thì vẫn ghi đè và `checked_at` đổi thành lúc lưu mới.
