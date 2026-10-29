@@ -290,3 +290,19 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Chưa push: `main` có `de7ef28`, 2 commit của P3-05, 2 commit của P3-06 và 2 commit của P4-01. Có migration mới (`words`); lần deploy tới sẽ tạo bảng và import khoảng 7.500 từ.
 - Ở dev, import mất khoảng 8 giây (Docker trên ổ D). Test import file thật mất vài giây trong bộ test.
 - Sửa CSV thì sửa `database/data/vocabulary.csv` trong repo rồi deploy; file ở thư mục cha không còn được dùng.
+
+## 2026-10-29 · P4-02 (thẻ ôn và SM-2)
+**Đã làm**
+- Chốt với bạn (D20): SM-2 gốc, lưu lịch sử ôn, hạn ôn theo ngày.
+- Bảng `cards` (`user_id`, `word_id`, `ease_factor`, `interval_days`, `repetitions`, `lapses`, `due_on`, `last_reviewed_at`; unique `user_id` + `word_id`, index `user_id` + `due_on`) và `card_reviews` (`user_id`, `card_id`, `rating`, `ease_factor`, `interval_days`, `due_on`, `reviewed_at`). Xóa người dùng thì xóa thẻ và lịch sử ôn; từ vẫn giữ.
+- Enum `App\Enums\Rating` (Again/Hard/Good/Easy = 1–4, `quality()` ra q của SM-2), `App\Support\Sm2::next()` (hàm thuần), `App\Actions\ReviewCard::handle($card, $rating)`. Thêm `User::cards()`, `User::cardReviews()`.
+- Test: `tests/Unit/Sm2Test.php` (5: chuỗi 1 → 6 → 15 → 38 ngày, Hard/Easy đổi hệ số, làm tròn lên, sàn 1,3, Again), `ReviewCardTest` (4: hạn tính theo hôm nay giờ Việt Nam, quên thẻ đã thuộc, Again thẻ mới không tính quên, xóa người dùng). Cả bộ 123 test xanh.
+- Đã chạy thử trên MariaDB dev (dữ liệu thử đã xóa): Good, Good, Hard, Again → hạn 30/10, 04/11, 13/11, rồi về 29/10.
+
+**Tiếp theo**
+- P4-03: chọn từ mới theo giai đoạn (8/10/12/15/10 từ mỗi ngày, đúng mức CEFR) → tạo thẻ với `due_on` = hôm nay.
+
+**Lưu ý**
+- Chưa push: `main` hơn origin 9 commit (gồm P3-05, P3-06, P4-01, P4-02). Có 3 migration mới (`words`, `cards`, `card_reviews`).
+- Tạo thẻ qua `$user->cards()->create([...])`; ghi lịch sử ôn chỉ qua `ReviewCard`, không ghi `card_reviews` trực tiếp.
+- Cột là `interval_days` vì `interval` là từ khóa của MariaDB.
