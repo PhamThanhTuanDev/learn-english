@@ -234,5 +234,5 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - P3-05: trang tuần/tháng. Có thể dùng lại route `days.completion.update/destroy` cho việc đánh dấu bù, và thêm form nhập kết quả cổng kiểm tra (`gate_results`).
 
 **Lưu ý**
-- `main` có 9 commit chưa push. Push đầu tiên sẽ chạy migration P3-02, P3-03 và `RoadmapSeeder` trên production. Nếu seeder chưa chạy thì trang Hôm nay chỉ còn lời chào (không lỗi).
+- Đã push 9 commit (đến `1d527e0`) ngày 29/10. Job Deploy xanh: bước `migrate` → `db:seed --class=RoadmapSeeder` → `optimize` chạy nối bằng `&&` và thành công, nên production đã có các bảng P3-02, P3-03 và dữ liệu lộ trình. Chưa đếm trực tiếp số dòng `roadmap_days` trên production.
 - Nút bấm chính của Breeze tự viết hoa toàn bộ chữ ("ĐÁNH DẤU ĐÃ XONG").
