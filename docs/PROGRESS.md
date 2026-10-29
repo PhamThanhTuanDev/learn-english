@@ -118,3 +118,16 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Nếu host key của server thay đổi (ví dụ iNET chuyển server), deploy sẽ dừng ở bước SSH. Khi đó lấy lại bằng `ssh-keyscan -p 65333 -t ed25519 turboweb-082302.inet.vn`, so fingerprint rồi cập nhật secret `SSH_KNOWN_HOSTS`.
 - Sau lần deploy đầu, web sẽ báo lỗi 500 vì chưa có `.env` (thiếu APP_KEY); việc này làm ở P2-04. `APP_DEBUG` mặc định là false nên trang lỗi không lộ thông tin.
 - `bootstrap/cache/packages.php` và `services.php` được sinh trên CI (không có dev package) rồi upload lên. Nếu sau này chạy `config:cache` hay `route:cache` trên server thì phải chạy lại sau mỗi lần deploy (chốt ở P2-04).
+
+## 2026-10-29 · P2-04 (đang làm, tạm dừng)
+**Đã chốt với bạn** (sẽ ghi vào DECISIONS khi xong): migration tự chạy khi deploy (`migrate --force` + `optimize`); tài khoản chủ tạo bằng `php artisan app:create-owner` trong Terminal cPanel; mật khẩu DB do bạn tự nhập bằng lệnh có prompt ẩn.
+
+**Đã làm**
+- Tạo `~/learn-english/.env` trên server qua SSH (quyền 600): production, `APP_DEBUG=false`, `APP_URL=https://english.minlish.site`, DB `localhost` / `qdgjatryhosting_learn-english` / `qdgjatryhosting_learn`, `QUEUE_CONNECTION=sync`, log `daily` 14 ngày ở mức `warning`, mail `log`. Đã chạy `key:generate`. `DB_PASSWORD` còn trống.
+- `deploy.yml` có thêm bước "Migrate and cache" (commit wip, chưa push).
+
+**Tiếp theo**
+1. Bạn chạy lệnh nhập mật khẩu DB trong Terminal cPanel. Lệnh ghi `DB_PASSWORD="..."` (escape `\`, `"`, `$` theo luật phpdotenv; đã thử với mật khẩu nhiều ký tự đặc biệt) rồi chạy `php artisan db:show` để kiểm tra kết nối.
+2. Push → deploy chạy migration.
+3. Bạn chạy `php artisan app:create-owner` trong Terminal cPanel.
+4. Kiểm tra web, ghi D13, tick ROADMAP.

@@ -117,3 +117,8 @@ jobs:
           fi
           mv .deploy-manifest.new .deploy-manifest
           EOF
+
+      # .env lives only on the server (P2-04). After editing it there, run
+      # `php artisan optimize` again, since the config is cached.
+      - name: Migrate and cache
+        run: ssh production "cd $APP_DIR && php artisan migrate --force --no-ansi && php artisan optimize --no-ansi"
