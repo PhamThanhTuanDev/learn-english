@@ -92,3 +92,25 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - AutoSSL sẽ tạo thư mục `.well-known` trong `~/learn-english/public`, nên deploy không được xóa file không do nó upload.
 - Tài khoản FTP `asm-web-ute@english.minlish.site` đang trỏ vào thư mục không còn tồn tại; xóa nếu không dùng.
 - Giữ `english.minlish.site.bak` cho đến khi web chạy ổn.
+
+## 2026-10-29 · P2-03 (workflow deploy)
+**Đã làm**
+- Kiểm tra PHP qua web: `v.php` trả về `8.4.27`, nên giữ nguyên `public/.htaccess` của Laravel, không thêm handler.
+- `.github/workflows/deploy.yml`: khi push lên `main` (hoặc bấm *Run workflow*), workflow gọi `ci.yml` trước. CI xanh thì job `deploy` mới chạy: `composer install --no-dev --optimize-autoloader`, `npm ci && npm run build`, rồi upload qua FTPS (explicit, cổng 21) bằng `SamKirkland/FTP-Deploy-Action` v4.4.0, ghim theo SHA.
+- `ci.yml` giờ chạy khi có `pull_request` hoặc được gọi qua `workflow_call`. Đã bỏ `push: main` để mỗi lần push CI không chạy 2 lần; push lên `main` thì CI chạy bên trong workflow Deploy.
+- File được upload: `app`, `artisan`, `bootstrap`, `composer.json/lock`, `config`, `database`, `lang`, `public` (kèm `build`), `resources`, `routes`, `vendor` và các thư mục rỗng của `storage`. Không upload `.env*`, `.git*`, `node_modules`, `tests`, `docker`, `tools`, `docs`, `.claude` và các file cấu hình dev.
+
+**Tiếp theo**
+- Bạn nhập 3 secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` rồi push để deploy lần đầu, sau đó xem log.
+- Trên hosting: xóa `public/v.php` và `public/symlink-test.txt` nếu chưa xóa.
+- P2-04: `.env` production và migration.
+
+**Lưu ý**
+- FTPS: thử từ máy dev thì `ftp.kesat.vn` (Pure-FTPd) có liệt kê `AUTH TLS` trong FEAT, nhưng gửi lệnh `AUTH TLS` thì nhận `500 This security scheme is not implemented`, còn cổng 990 thì đóng. Nếu log trên GitHub cũng ra lỗi này, phải nhờ nhà cung cấp hosting bật TLS cho FTP. Không tự chuyển sang FTP thường vì mật khẩu sẽ gửi đi không mã hóa.
+- Workflow để `security: strict`. Nếu gặp lỗi chứng chỉ (tên miền không khớp), sửa secret `FTP_SERVER` thành hostname ghi trong chứng chỉ của server, đừng hạ xuống `loose`.
+- Action chỉ ghi đè hoặc xóa những file có trong `~/learn-english/.ftp-deploy-sync-state.json`, tức là file do chính nó upload. Vì vậy `.env`, dữ liệu trong `storage/` và `public/.well-known` không bị đụng tới. Đừng thêm vào exclude một thư mục đã từng deploy (`storage/`, `public/`…), vì khi đó action sẽ xóa cả thư mục ấy trên server, kể cả file bên trong. Nếu xóa file state thì lần sau action upload lại toàn bộ, không xóa gì.
+- Lần đầu phải upload toàn bộ `vendor` (vài nghìn file) qua FTP, có thể mất 1–2 giờ. Các lần sau chỉ upload file thay đổi.
+- Sau lần deploy đầu, web sẽ báo lỗi 500 vì chưa có `.env` (thiếu APP_KEY); việc này làm ở P2-04. `APP_DEBUG` mặc định là false nên trang lỗi không lộ thông tin.
+- Trong lúc upload, web có thể lỗi một lúc vì file mới và file cũ lẫn nhau. Với web cá nhân thì chấp nhận được.
+- `bootstrap/cache/packages.php` và `services.php` được sinh trên CI (không có dev package) rồi upload lên. Nếu sau này chạy `config:cache` hay `route:cache` trên server thì phải chạy lại sau mỗi lần deploy (chốt ở P2-04).
+- Exclude bật `matchBase`: mẫu không có `/` (vd. `README.md`) sẽ khớp file cùng tên ở mọi thư mục, kể cả trong `vendor`. Điều này không gây hại.
