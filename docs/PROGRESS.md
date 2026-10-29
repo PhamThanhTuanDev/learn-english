@@ -107,6 +107,7 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 
 **Lưu ý**
 - FTPS: thử từ máy dev thì `ftp.kesat.vn` (Pure-FTPd) có liệt kê `AUTH TLS` trong FEAT, nhưng gửi lệnh `AUTH TLS` thì nhận `500 This security scheme is not implemented`, còn cổng 990 thì đóng. Nếu log trên GitHub cũng ra lỗi này, phải nhờ nhà cung cấp hosting bật TLS cho FTP. Không tự chuyển sang FTP thường vì mật khẩu sẽ gửi đi không mã hóa.
+- Đã xác nhận ở lần deploy đầu (run 40816495601, 29/10): CI và build xanh, nhưng bước upload lỗi `FTPError: 500 This security scheme is not implemented`. Lỗi xảy ra ở bước `AUTH TLS`, trước khi gửi tài khoản, nên chưa có file nào được upload và mật khẩu chưa bị gửi đi. Đang chờ bạn chọn: nhờ hosting bật TLS cho FTP (sau đó chỉ cần bấm *Re-run failed jobs*) hoặc chuyển sang SSH.
 - Workflow để `security: strict`. Nếu gặp lỗi chứng chỉ (tên miền không khớp), sửa secret `FTP_SERVER` thành hostname ghi trong chứng chỉ của server, đừng hạ xuống `loose`.
 - Action chỉ ghi đè hoặc xóa những file có trong `~/learn-english/.ftp-deploy-sync-state.json`, tức là file do chính nó upload. Vì vậy `.env`, dữ liệu trong `storage/` và `public/.well-known` không bị đụng tới. Đừng thêm vào exclude một thư mục đã từng deploy (`storage/`, `public/`…), vì khi đó action sẽ xóa cả thư mục ấy trên server, kể cả file bên trong. Nếu xóa file state thì lần sau action upload lại toàn bộ, không xóa gì.
 - Lần đầu phải upload toàn bộ `vendor` (vài nghìn file) qua FTP, có thể mất 1–2 giờ. Các lần sau chỉ upload file thay đổi.
