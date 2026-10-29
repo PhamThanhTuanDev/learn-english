@@ -57,6 +57,22 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<Card, $this>
+     */
+    public function cards(): HasMany
+    {
+        return $this->hasMany(Card::class);
+    }
+
+    /**
+     * @return HasMany<CardReview, $this>
+     */
+    public function cardReviews(): HasMany
+    {
+        return $this->hasMany(CardReview::class);
+    }
+
+    /**
      * Which day of the roadmap the learner is on today (day 1 = start date),
      * or null when no start date is set or it is still in the future.
      */
