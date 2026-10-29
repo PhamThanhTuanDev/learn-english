@@ -23,6 +23,8 @@ jobs:
     environment:
       name: production
       url: https://english.minlish.site
+    env:
+      APP_DIR: learn-english
     steps:
       - uses: actions/checkout@v5
 
@@ -41,45 +43,77 @@ jobs:
         run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
 
       - name: Build frontend
-        run: npm ci && npm run build && rm -rf node_modules
+        run: npm ci && npm run build
 
-      # The FTP account is jailed to ~/learn-english, so its root is the app root.
-      # Only files listed in the server's .ftp-deploy-sync-state.json are ever
-      # replaced or deleted: .env, storage/ data and public/.well-known are safe.
-      # Never exclude a folder that was deployed before (storage/, public/...):
-      # the action would then delete it on the server with everything inside.
-      - name: Upload via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          security: strict
-          local-dir: ./
-          server-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            .env
-            .env.*
-            .claude/**
-            docker/**
-            docs/**
-            tests/**
-            tools/**
-            AGENTS.md
-            CLAUDE.md
-            README.md
-            .editorconfig
-            .npmrc
-            compose.yaml
-            package.json
-            package-lock.json
-            phpstan.neon
-            phpunit.xml
-            postcss.config.js
-            tailwind.config.js
-            vite.config.js
+      - name: Stage release
+        run: |
+          release="$RUNNER_TEMP/release"
+          rsync -a --exclude-from=- ./ "$release/" <<'EOF'
+          .git*
+          node_modules/
+          + /storage/**/
+          - /storage/**
+          /.env
+          /.env.*
+          /.claude/
+          /docker/
+          /docs/
+          /tests/
+          /tools/
+          /AGENTS.md
+          /CLAUDE.md
+          /README.md
+          /.editorconfig
+          /.npmrc
+          /compose.yaml
+          /package.json
+          /package-lock.json
+          /phpstan.neon
+          /phpunit.xml
+          /postcss.config.js
+          /tailwind.config.js
+          /vite.config.js
+          EOF
+          (cd "$release" && find . -type f -printf '%P\n' | LC_ALL=C sort) > "$RUNNER_TEMP/manifest"
+          mv "$RUNNER_TEMP/manifest" "$release/.deploy-manifest.new"
+
+      - name: Configure SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host production
+            HostName $SSH_HOST
+            Port $SSH_PORT
+            User $SSH_USER
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+
+      # No --delete: .env, storage/ data and AutoSSL's public/.well-known exist
+      # only on the server. Stale files are removed in the next step instead.
+      - name: Upload
+        run: rsync -rlpz --checksum --delay-updates --chmod=D755,F644 "$RUNNER_TEMP/release/" "production:$APP_DIR/"
+
+      # Delete only files that the previous deploy uploaded and this one no longer has.
+      - name: Remove files dropped since last deploy
+        run: |
+          ssh production "cd $APP_DIR && sh -s" <<'EOF'
+          set -e
+          if [ -f .deploy-manifest ]; then
+            LC_ALL=C comm -23 .deploy-manifest .deploy-manifest.new | while IFS= read -r f; do
+              case "$f" in .env*|storage/*|public/.well-known/*) continue ;; esac
+              rm -f -- "$f"
+            done
+          fi
+          mv .deploy-manifest.new .deploy-manifest
+          EOF
