@@ -13,6 +13,19 @@ enum Rating: int
     case Easy = 4;
 
     /**
+     * The button's label on the review screen.
+     */
+    public function label(): string
+    {
+        return match ($this) {
+            self::Again => 'Quên',
+            self::Hard => 'Khó',
+            self::Good => 'Nhớ',
+            self::Easy => 'Dễ',
+        };
+    }
+
+    /**
      * The SM-2 response quality (0–5). Below 3 means the card was forgotten.
      */
     public function quality(): int

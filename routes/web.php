@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DayCompletionController;
+use App\Http\Controllers\FlashcardController;
 use App\Http\Controllers\GateResultController;
 use App\Http\Controllers\MonthController;
 use App\Http\Controllers\ProfileController;
@@ -28,8 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings', [StudySettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [StudySettingsController::class, 'update'])->name('settings.update');
 
+    Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards');
+    Route::post('/flashcards/{card}/review', [FlashcardController::class, 'review'])->name('flashcards.review');
+
     // Placeholders until each feature lands (see docs/ROADMAP.md).
-    Route::view('/flashcards', 'coming-soon', ['title' => 'Flashcard', 'phase' => 'Phase 4'])->name('flashcards');
     Route::view('/mistakes', 'coming-soon', ['title' => 'Sổ lỗi', 'phase' => 'Phase 5'])->name('mistakes');
     Route::view('/scores', 'coming-soon', ['title' => 'Điểm số', 'phase' => 'Phase 6'])->name('scores');
 });
