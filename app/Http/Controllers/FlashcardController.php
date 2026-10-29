@@ -6,6 +6,7 @@ use App\Actions\AddNewCards;
 use App\Actions\ReviewCard;
 use App\Enums\Rating;
 use App\Models\Card;
+use App\Support\FlashcardStats;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -35,6 +36,7 @@ class FlashcardController extends Controller
         return view('flashcards.index', [
             'user' => $user,
             'cards' => $cards->map(fn (Card $card) => $this->payload($card))->all(),
+            'stats' => FlashcardStats::for($user),
             'ratings' => array_map(fn (Rating $rating) => ['value' => $rating->value, 'label' => $rating->label()], Rating::cases()),
         ]);
     }

@@ -20,21 +20,14 @@ class AddNewCards
      */
     public function handle(User $user): int
     {
-        $number = $user->roadmapDayNumber();
-        $day = $number === null ? null : RoadmapDay::with('week.month.stage')->where('number', $number)->first();
+        $day = $this->studyDay($user);
+        $missing = $day === null ? 0 : $this->missing($user, $day);
 
-        if ($day === null || $day->is_rest) {
+        if ($day === null || $missing <= 0) {
             return 0;
         }
 
-        $stage = $day->week->month->stage->number;
-        $missing = NewWordPlan::quota($stage, $day->week->number) - $this->addedToday($user);
-
-        if ($missing <= 0) {
-            return 0;
-        }
-
-        $order = NewWordPlan::levelOrder($stage);
+        $order = NewWordPlan::levelOrder($day->week->month->stage->number);
         $ranks = implode(' ', array_map(fn (int $rank) => "when ? then {$rank}", array_keys($order)));
         $wordIds = Word::query()
             ->whereNotIn('id', Card::query()->select('word_id')->where('user_id', $user->id))
@@ -55,6 +48,34 @@ class AddNewCards
             'created_at' => $now,
             'updated_at' => $now,
         ])->all());
+    }
+
+    /**
+     * How many new words handle() would add now, without adding them. It
+     * assumes the word list has not run out.
+     */
+    public function remaining(User $user): int
+    {
+        $day = $this->studyDay($user);
+
+        return $day === null ? 0 : max(0, $this->missing($user, $day));
+    }
+
+    /**
+     * Today's roadmap day, or null before the start, after the last day and
+     * on rest days.
+     */
+    private function studyDay(User $user): ?RoadmapDay
+    {
+        $number = $user->roadmapDayNumber();
+        $day = $number === null ? null : RoadmapDay::with('week.month.stage')->where('number', $number)->first();
+
+        return $day === null || $day->is_rest ? null : $day;
+    }
+
+    private function missing(User $user, RoadmapDay $day): int
+    {
+        return NewWordPlan::quota($day->week->month->stage->number, $day->week->number) - $this->addedToday($user);
     }
 
     /**

@@ -72,6 +72,34 @@
                 </div>
             @endif
 
+            @if ($flashcards !== null)
+                @php
+                    $toReview = $flashcards->due + $flashcards->pendingNew;
+                    $retention = $flashcards->retentionPercent();
+                @endphp
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900 sm:flex sm:items-center sm:justify-between sm:gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium">Flashcard</h3>
+                            @if ($toReview > 0)
+                                <p class="mt-1">Hôm nay còn {{ $toReview }} thẻ cần ôn ({{ $flashcards->dueNew + $flashcards->pendingNew }} từ mới).</p>
+                            @else
+                                <p class="mt-1">Hôm nay không còn thẻ nào cần ôn.</p>
+                            @endif
+                            <p class="mt-1 text-sm text-gray-600">
+                                Hôm nay đã trả lời {{ $flashcards->answeredToday }} lần ·
+                                đã học {{ number_format($flashcards->learned, 0, ',', '.') }} từ, thuộc {{ number_format($flashcards->known, 0, ',', '.') }} ·
+                                tỉ lệ nhớ 30 ngày: {{ $retention === null ? 'chưa có' : number_format($retention, 0).'%' }}
+                            </p>
+                        </div>
+                        <a href="{{ route('flashcards') }}" class="mt-4 sm:mt-0 inline-flex shrink-0 items-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
+                            {{ $toReview > 0 ? 'Ôn ngay' : 'Xem thống kê' }}
+                        </a>
+                    </div>
+                </div>
+            @endif
+
             @if ($day !== null)
                 @php
                     $completion = $completions->get($day->id);

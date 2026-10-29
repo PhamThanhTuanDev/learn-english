@@ -112,6 +112,51 @@
                     </p>
                 </div>
             @endif
+
+            @if ($stats->learned > 0)
+                @php
+                    $retention = $stats->retentionPercent();
+                @endphp
+
+                <div class="mt-8 grid grid-cols-3 gap-3 px-4 sm:px-0">
+                    <div class="bg-white shadow-sm rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Đã học</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ number_format($stats->learned, 0, ',', '.') }}</p>
+                        <p class="mt-1 text-xs text-gray-500">từ đã ôn ít nhất 1 lần</p>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Đã thuộc</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ number_format($stats->known, 0, ',', '.') }}</p>
+                        <p class="mt-1 text-xs text-gray-500">khoảng cách ôn từ {{ $stats::KNOWN_INTERVAL }} ngày</p>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Tỉ lệ nhớ</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $retention === null ? '–' : number_format($retention, 0).'%' }}</p>
+                        <p class="mt-1 text-xs text-gray-500">{{ $stats::RETENTION_DAYS }} ngày, {{ $stats->retentionReviews }} lần ôn</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900">
+                        <h3 class="text-lg font-medium">Thẻ đến hạn {{ $stats::FORECAST_DAYS }} ngày tới</h3>
+                        <p class="mt-1 text-sm text-gray-600">Chưa tính từ mới sẽ được thêm vào mỗi ngày học.</p>
+
+                        <ul class="mt-4 space-y-3">
+                            @foreach ($stats->forecast as $day)
+                                <li class="flex items-center gap-3">
+                                    <p class="w-28 shrink-0 text-sm text-gray-700">
+                                        {{ $loop->first ? 'Ngày mai' : ucfirst($day['date']->locale(app()->getLocale())->isoFormat('dd DD/MM')) }}
+                                    </p>
+                                    <div class="h-3 flex-1 rounded-full bg-gray-100" aria-hidden="true">
+                                        <div class="h-3 rounded-full bg-indigo-500" style="width: {{ $day['share'] }}%"></div>
+                                    </div>
+                                    <p class="w-16 shrink-0 text-right text-sm text-gray-700">{{ $day['cards'] }} thẻ</p>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

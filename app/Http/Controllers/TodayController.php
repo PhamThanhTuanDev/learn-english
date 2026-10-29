@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RoadmapDay;
 use App\Models\RoadmapResource;
+use App\Support\FlashcardStats;
 use App\Support\StudyStats;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -21,9 +22,10 @@ class TodayController extends Controller
         $number = $user->roadmapDayNumber();
         $day = $number === null ? null : RoadmapDay::with('week.month.stage')->where('number', $number)->first();
         $stats = $number === null ? null : StudyStats::for($user);
+        $flashcards = $number === null ? null : FlashcardStats::for($user);
 
         if ($day === null) {
-            return view('today', compact('user', 'number', 'day', 'stats'));
+            return view('today', compact('user', 'number', 'day', 'stats', 'flashcards'));
         }
 
         $week = $day->week;
@@ -43,6 +45,7 @@ class TodayController extends Controller
             'weekDays' => $weekDays,
             'completions' => $completions,
             'stats' => $stats,
+            'flashcards' => $flashcards,
             'resources' => $this->resourcesMentionedIn([
                 $day->task,
                 ...array_column($stage->blocks, 'description'),
