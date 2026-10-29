@@ -119,15 +119,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Sau lần deploy đầu, web sẽ báo lỗi 500 vì chưa có `.env` (thiếu APP_KEY); việc này làm ở P2-04. `APP_DEBUG` mặc định là false nên trang lỗi không lộ thông tin.
 - `bootstrap/cache/packages.php` và `services.php` được sinh trên CI (không có dev package) rồi upload lên. Nếu sau này chạy `config:cache` hay `route:cache` trên server thì phải chạy lại sau mỗi lần deploy (chốt ở P2-04).
 
-## 2026-10-29 · P2-04 (đang làm, tạm dừng)
-**Đã chốt với bạn** (sẽ ghi vào DECISIONS khi xong): migration tự chạy khi deploy (`migrate --force` + `optimize`); tài khoản chủ tạo bằng `php artisan app:create-owner` trong Terminal cPanel; mật khẩu DB do bạn tự nhập bằng lệnh có prompt ẩn.
-
+## 2026-10-29 · P2-04 (`.env` production + migration)
 **Đã làm**
-- Tạo `~/learn-english/.env` trên server qua SSH (quyền 600): production, `APP_DEBUG=false`, `APP_URL=https://english.minlish.site`, DB `localhost` / `qdgjatryhosting_learn-english` / `qdgjatryhosting_learn`, `QUEUE_CONNECTION=sync`, log `daily` 14 ngày ở mức `warning`, mail `log`. Đã chạy `key:generate`. `DB_PASSWORD` còn trống.
-- `deploy.yml` có thêm bước "Migrate and cache" (commit wip, chưa push).
+- Chốt với bạn (D13): migration tự chạy khi deploy; tài khoản chủ tạo bằng `app:create-owner`; mật khẩu DB do bạn tự nhập bằng lệnh có prompt ẩn.
+- Tạo `~/learn-english/.env` trên server qua SSH (quyền 600) và chạy `key:generate`. Cấu hình: production, `APP_DEBUG=false`, `APP_URL=https://english.minlish.site`, DB `localhost` / `qdgjatryhosting_learn-english` / `qdgjatryhosting_learn`, `QUEUE_CONNECTION=sync`, log `daily` giữ 14 ngày ở mức `warning`, mail `log`. Bạn đã nhập `DB_PASSWORD` và `php artisan db:show` kết nối được (MariaDB 10.5.29).
+- `deploy.yml` có thêm bước "Migrate and cache" (`migrate --force` rồi `optimize`).
+- Lần migrate đầu lỗi `Specified key was too long; max key length is 1000 bytes`, vì MariaDB của hosting mặc định dùng MyISAM. Đã sửa bằng cách đặt `'engine' => 'InnoDB'` cho kết nối `mariadb` trong `config/database.php`, và đã thử trên MariaDB dev với engine mặc định đổi sang MyISAM. Hai bảng rỗng mà lần lỗi tạo ra (`migrations`, `users`, MyISAM) đã được xóa, sau đó deploy lại.
+- Run 40827479448: 5 migration chạy xong, cả 9 bảng là InnoDB. `/` chuyển hướng sang `/login` (200), còn `/register` trả 404.
+- Bạn đã tạo tài khoản chủ bằng `php artisan app:create-owner` trong Terminal cPanel. Production hiện có 1 user, đã xác thực email.
 
 **Tiếp theo**
-1. Bạn chạy lệnh nhập mật khẩu DB trong Terminal cPanel. Lệnh ghi `DB_PASSWORD="..."` (escape `\`, `"`, `$` theo luật phpdotenv; đã thử với mật khẩu nhiều ký tự đặc biệt) rồi chạy `php artisan db:show` để kiểm tra kết nối.
-2. Push → deploy chạy migration.
-3. Bạn chạy `php artisan app:create-owner` trong Terminal cPanel.
-4. Kiểm tra web, ghi D13, tick ROADMAP.
+- P2-05: AutoSSL (đã có chứng chỉ Let's Encrypt cho `english.minlish.site`), bật Force HTTPS, `SESSION_SECURE_COOKIE=true`, kiểm tra đăng nhập trên production.
+
+**Lưu ý**
+- Sửa `.env` trên server xong phải chạy `php artisan optimize` (hoặc `config:clear`), vì config đang được cache. Deploy cũng tự chạy `optimize` mỗi lần.
+- Chạy lệnh artisan trên server bằng `php` (8.4 CLI). Đừng dùng `/usr/bin/php`, đó là php-cgi.
+- Lệnh `php artisan tinker` trên server in cảnh báo `Unsuccessful stat on filename containing newline ... ea_php_cli.pm` nếu đoạn `--execute` có xuống dòng. Cảnh báo này vô hại.
+- Migration lỗi thì job deploy đỏ, mà code mới đã lên nhưng schema chưa đổi. Khi đó sửa rồi push lại; nếu lỗi để lại bảng dở thì xem `migrate:status` trước khi dọn.
+- `QUEUE_CONNECTION=sync`: chưa có cron chạy queue. Khi nào cần queue hay scheduler thì thêm cron `php artisan schedule:run`.

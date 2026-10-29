@@ -42,3 +42,9 @@ GitHub Actions vẫn chạy CI rồi mới deploy, nhưng upload bằng `rsync` 
 Lý do: FTP của hosting (Pure-FTPd) đang tắt TLS. Lệnh `AUTH TLS` trả về `500 This security scheme is not implemented` cả từ máy dev lẫn từ GitHub. Chỉ admin hosting mới bật được TLS, còn FTP thường thì gửi mật khẩu không mã hóa. SSH thì có mã hóa, rsync chỉ gửi phần thay đổi nên nhanh hơn FTP nhiều, và sau này chạy được `php artisan migrate` ngay trong workflow.
 Đánh đổi: khóa SSH có quyền trên toàn bộ tài khoản cPanel, không bị giới hạn trong `~/learn-english` như tài khoản FTP. Để giảm rủi ro, khóa chỉ nằm trong GitHub Secrets, và trong `authorized_keys` bị tắt port/agent/X11 forwarding và pty.
 Không dùng `rsync --delete`. Workflow ghi danh sách file đã deploy vào `~/learn-english/.deploy-manifest`, và chỉ xóa những file có trong danh sách lần trước mà lần này không còn. Vì vậy `.env`, dữ liệu trong `storage/` và `public/.well-known` không bị đụng tới.
+
+## D13 · 2026-10-29 · `.env` production và migration
+`.env` production chỉ nằm trên server (`~/learn-english/.env`, quyền 600). Nó được tạo qua SSH, còn mật khẩu DB do bạn tự nhập bằng lệnh có prompt ẩn. Deploy không bao giờ upload hay xóa file này.
+Mỗi lần deploy, workflow SSH vào server chạy `php artisan migrate --force` rồi `php artisan optimize`. Tài khoản chủ tạo bằng `php artisan app:create-owner` trong Terminal cPanel (mật khẩu nhập ẩn), không qua `OWNER_PASSWORD` trong `.env`.
+Bảng MariaDB luôn tạo bằng InnoDB (`engine` trong `config/database.php`), vì MariaDB của hosting mặc định dùng MyISAM: không có transaction, không có khóa ngoại, và key tối đa 1000 byte.
+Lý do: có SSH nên migration chạy tự động được, push là xong, không phải nhớ làm tay. Mật khẩu không bao giờ nằm trong repo, trong GitHub hay trong lịch sử lệnh.
