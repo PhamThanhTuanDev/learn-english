@@ -96,22 +96,23 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 ## 2026-10-29 · P2-03 (workflow deploy)
 **Đã làm**
 - Kiểm tra PHP qua web: `v.php` trả về `8.4.27`, nên giữ nguyên `public/.htaccess` của Laravel, không thêm handler.
-- `.github/workflows/deploy.yml`: khi push lên `main` (hoặc bấm *Run workflow*), workflow gọi `ci.yml` trước. CI xanh thì job `deploy` mới chạy: `composer install --no-dev --optimize-autoloader`, `npm ci && npm run build`, rồi upload qua FTPS (explicit, cổng 21) bằng `SamKirkland/FTP-Deploy-Action` v4.4.0, ghim theo SHA.
-- `ci.yml` giờ chạy khi có `pull_request` hoặc được gọi qua `workflow_call`. Đã bỏ `push: main` để mỗi lần push CI không chạy 2 lần; push lên `main` thì CI chạy bên trong workflow Deploy.
+- `.github/workflows/deploy.yml`: khi push lên `main` (hoặc bấm *Run workflow*), workflow gọi `ci.yml` trước. CI xanh thì job `deploy` mới chạy: `composer install --no-dev --optimize-autoloader`, `npm ci && npm run build`, gom file vào một thư mục release, rồi `rsync` qua SSH lên `~/learn-english`.
+- `ci.yml` giờ chạy khi có `pull_request` hoặc được gọi qua `workflow_call`. Đã bỏ `push: main` để mỗi lần push CI không chạy 2 lần.
+- Bản đầu dùng FTPS. Lần deploy thử (run 40816495601) có CI và build xanh, nhưng bước upload lỗi `500 This security scheme is not implemented`: hosting đã tắt TLS cho FTP, và chỉ admin hosting mới bật được. Lỗi xảy ra trước khi gửi tài khoản, nên chưa có file nào lên server. Theo lựa chọn của bạn, deploy chuyển sang SSH (D12).
+- Khóa deploy riêng: `C:\Users\tuan\.ssh\learn-english-deploy` (ed25519, fingerprint `SHA256:fpeLm+P245AS/1JoZpSZ4lw367U6NrX2hWNCTrrcQWs`). Host key của server đã được ghim (ed25519, `SHA256:bnTPAtHgvlZqYlymJRfAHlNASt4CZcGp4q3OtnM/t0I`).
 - File được upload: `app`, `artisan`, `bootstrap`, `composer.json/lock`, `config`, `database`, `lang`, `public` (kèm `build`), `resources`, `routes`, `vendor` và các thư mục rỗng của `storage`. Không upload `.env*`, `.git*`, `node_modules`, `tests`, `docker`, `tools`, `docs`, `.claude` và các file cấu hình dev.
 
 **Tiếp theo**
-- Bạn nhập 3 secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` rồi push để deploy lần đầu, sau đó xem log.
+- Bạn cài public key vào `~/.ssh/authorized_keys` (lệnh trong Terminal của cPanel), nhập 5 secrets `SSH_*`, rồi push để deploy lần đầu.
+- Có thể xóa 3 secrets `FTP_*` trên GitHub. Tài khoản FTP `deploy@english.minlish.site` thì giữ hay xóa tùy bạn, deploy không dùng nữa.
 - Trên hosting: xóa `public/v.php` và `public/symlink-test.txt` nếu chưa xóa.
-- P2-04: `.env` production và migration.
+- P2-04: `.env` production và migration. Giờ đã có SSH, nên migration có thể chạy ngay trong workflow.
 
 **Lưu ý**
-- FTPS: thử từ máy dev thì `ftp.kesat.vn` (Pure-FTPd) có liệt kê `AUTH TLS` trong FEAT, nhưng gửi lệnh `AUTH TLS` thì nhận `500 This security scheme is not implemented`, còn cổng 990 thì đóng. Nếu log trên GitHub cũng ra lỗi này, phải nhờ nhà cung cấp hosting bật TLS cho FTP. Không tự chuyển sang FTP thường vì mật khẩu sẽ gửi đi không mã hóa.
-- Đã xác nhận ở lần deploy đầu (run 40816495601, 29/10): CI và build xanh, nhưng bước upload lỗi `FTPError: 500 This security scheme is not implemented`. Lỗi xảy ra ở bước `AUTH TLS`, trước khi gửi tài khoản, nên chưa có file nào được upload và mật khẩu chưa bị gửi đi. Đang chờ bạn chọn: nhờ hosting bật TLS cho FTP (sau đó chỉ cần bấm *Re-run failed jobs*) hoặc chuyển sang SSH.
-- Workflow để `security: strict`. Nếu gặp lỗi chứng chỉ (tên miền không khớp), sửa secret `FTP_SERVER` thành hostname ghi trong chứng chỉ của server, đừng hạ xuống `loose`.
-- Action chỉ ghi đè hoặc xóa những file có trong `~/learn-english/.ftp-deploy-sync-state.json`, tức là file do chính nó upload. Vì vậy `.env`, dữ liệu trong `storage/` và `public/.well-known` không bị đụng tới. Đừng thêm vào exclude một thư mục đã từng deploy (`storage/`, `public/`…), vì khi đó action sẽ xóa cả thư mục ấy trên server, kể cả file bên trong. Nếu xóa file state thì lần sau action upload lại toàn bộ, không xóa gì.
-- Lần đầu phải upload toàn bộ `vendor` (vài nghìn file) qua FTP, có thể mất 1–2 giờ. Các lần sau chỉ upload file thay đổi.
+- Server SSH: `turboweb-082302.inet.vn`, cổng 65333, user `qdgjatryhosting`. Cổng 22 bị chặn.
+- Không dùng `rsync --delete`. Workflow ghi danh sách file đã deploy vào `~/learn-english/.deploy-manifest`, và chỉ xóa những file có ở lần trước mà lần này không còn. Ngoài ra luôn bỏ qua `.env*`, `storage/*`, `public/.well-known/*`. Nếu xóa file manifest thì lần sau không xóa gì cả.
+- `rsync --checksum --delay-updates`: chỉ gửi file thay đổi, và đợi đến cuối mới thay file mới vào, nên thời gian web bị lẫn file cũ/mới rất ngắn. Quyền file được đặt về 644, thư mục 755.
+- Khóa SSH có quyền trên cả tài khoản cPanel (8 domain), nên không đưa khóa bí mật cho ai và không commit. Nếu lộ: xóa dòng tương ứng trong `~/.ssh/authorized_keys` và tạo khóa mới.
+- Nếu host key của server thay đổi (ví dụ iNET chuyển server), deploy sẽ dừng ở bước SSH. Khi đó lấy lại bằng `ssh-keyscan -p 65333 -t ed25519 turboweb-082302.inet.vn`, so fingerprint rồi cập nhật secret `SSH_KNOWN_HOSTS`.
 - Sau lần deploy đầu, web sẽ báo lỗi 500 vì chưa có `.env` (thiếu APP_KEY); việc này làm ở P2-04. `APP_DEBUG` mặc định là false nên trang lỗi không lộ thông tin.
-- Trong lúc upload, web có thể lỗi một lúc vì file mới và file cũ lẫn nhau. Với web cá nhân thì chấp nhận được.
 - `bootstrap/cache/packages.php` và `services.php` được sinh trên CI (không có dev package) rồi upload lên. Nếu sau này chạy `config:cache` hay `route:cache` trên server thì phải chạy lại sau mỗi lần deploy (chốt ở P2-04).
-- Exclude bật `matchBase`: mẫu không có `/` (vd. `README.md`) sẽ khớp file cùng tên ở mọi thư mục, kể cả trong `vendor`. Điều này không gây hại.
