@@ -36,7 +36,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 - [x] P3-03 Bảng tiến độ: `day_completions` (đã xong, số phút), `gate_results` (kết quả cổng kiểm tra)
 - [x] P3-04 Trang **Hôm nay**: tuần/ngày hiện tại theo ngày bắt đầu, các khối cố định của giai đoạn, tick hoàn thành, nhập phút học
 - [x] P3-05 Trang tuần/tháng: xem lại, đánh dấu bù, nhập kết quả cổng kiểm tra
-- [ ] P3-06 Dashboard: % hoàn thành, chuỗi ngày học liên tiếp, tổng giờ theo tháng
+- [x] P3-06 Dashboard: % hoàn thành, chuỗi ngày học liên tiếp, tổng giờ theo tháng
 
 **Xong khi:** dùng web thay cho việc tick ô trong file Word.
 

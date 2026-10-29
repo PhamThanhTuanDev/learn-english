@@ -256,3 +256,19 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Chưa push: `main` có `de7ef28` và 2 commit của P3-05. Không có migration mới.
 - Trang tuần có nhiều form cùng tên `minutes`: mỗi form gửi kèm `day` (input ẩn) để chỉ form vừa gửi hiện lại giá trị cũ và lỗi.
 - Test tạo user bằng factory phải `->refresh()`, nếu không `timezone` còn null và "hôm nay" bị tính theo UTC.
+
+## 2026-10-29 · P3-06 (thống kê trên trang Hôm nay)
+**Đã làm**
+- Chốt với bạn (D18): thống kê đặt trên trang Hôm nay; chuỗi ngày tính theo ngày lịch có tick, ngày nghỉ không tick không làm đứt chuỗi; thời gian tính theo tháng lộ trình; vẽ bằng thanh ngang CSS.
+- `App\Support\StudyStats::for($user)`: số ngày đã xong / 728 và %, tổng phút, trung bình phút mỗi ngày đã xong, chuỗi hiện tại và dài nhất, số cổng đạt / 24, phút và số ngày theo từng tháng đã tới (kèm % so với tháng nhiều nhất). `StudyStats::duration()` đổi phút thành "2 giờ 30 phút".
+- Trang Hôm nay (`TodayController`, `today.blade.php`): 4 ô số ngay dưới khối chào (2 cột trên điện thoại, 4 cột trên màn rộng), khối "Thời gian học theo tháng" ở cuối trang (link tới trang tháng, nhãn "đang học"). Chưa bắt đầu lộ trình thì không hiện. Sau ngày 728 vẫn hiện.
+- Test `StudyStatsTest` (6): %, tổng giờ, cổng; chuỗi theo giờ Việt Nam (giờ UTC rơi vào ngày khác); ngày nghỉ và hôm nay không làm đứt chuỗi, ngày thiếu thì đứt, học bù tính cho ngày tick; phút tính vào tháng của ngày, tháng chưa tới bị ẩn; số 0 ở ngày đầu; chưa bắt đầu thì không hiện. Cả bộ 109 test xanh.
+- Đã xem ở dev bằng tài khoản thử tạm thời (đã xóa): 30/728 ngày (4,1%), chuỗi 15 ngày, 51 giờ 20 phút, cổng 1/24, thanh tháng 1 và 2. Khổ 375px không tràn ngang.
+
+**Tiếp theo**
+- Phase 3 xong. Phase 4: P4-01 bảng `words` + lệnh `app:import-vocabulary` đọc CSV.
+
+**Lưu ý**
+- Chưa push: `main` có `de7ef28`, 2 commit của P3-05 và 2 commit của P3-06. Không có migration mới.
+- Chuỗi ngày dựa vào ngày bắt đầu hiện tại để biết ngày nào là ngày nghỉ; đổi ngày bắt đầu thì ngày nghỉ dịch theo.
+- Cửa sổ app bị ẩn thì trình duyệt dựng sẵn không chụp màn hình hay click được; đăng nhập bằng `requestSubmit()` và kiểm tra bố cục bằng số đo DOM.

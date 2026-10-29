@@ -71,3 +71,8 @@ Giới hạn: seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc 
 - Ba trang: `/roadmap` (24 tháng theo giai đoạn) → `/roadmap/months/{n}` (các tuần + cổng cuối tháng) → `/roadmap/weeks/{n}` (7 ngày, tick và học bù).
 - Kết quả cổng của một tháng nhập được từ ngày 1 của tuần cuối tháng (`Month::gateOpensOnDay()`), để làm cổng sớm vài ngày vẫn ghi được. Sau đó lúc nào cũng nhập hoặc sửa được (khi học bù).
 - Có nút xóa kết quả cổng: xóa dòng `gate_results`, tháng quay về "chưa kiểm tra". Làm lại cổng thì vẫn ghi đè và `checked_at` đổi thành lúc lưu mới.
+
+## D18 · 2026-10-29 · Thống kê nằm trên trang Hôm nay, chuỗi ngày tính theo ngày lịch có tick
+- Không làm trang riêng: 4 ô số ở đầu trang Hôm nay (% hoàn thành = ngày đã xong / 728, chuỗi ngày học, tổng thời gian, số cổng đạt / 24), khối "Thời gian học theo tháng" ở cuối trang. Chỉ hiện khi lộ trình đã bắt đầu. Tính trong `App\Support\StudyStats`.
+- Chuỗi ngày học đếm các ngày lịch (giờ của người học) có ít nhất một tick theo `completed_at`. Học bù tính cho ngày tick, không nối lại chuỗi cũ. Ngày nghỉ của lộ trình (N7) không tick thì không làm đứt chuỗi và cũng không cộng; có tick thì cộng 1. Hôm nay chưa tick thì chuỗi vẫn giữ tới hết ngày. Có thêm chuỗi dài nhất.
+- Thời gian theo tháng tính theo tháng lộ trình (1–24): cộng số phút của các ngày thuộc tháng đó, kể cả ngày học bù về sau. Chỉ hiện các tháng đã tới. Vẽ bằng thanh ngang CSS (độ dài so với tháng nhiều phút nhất), không thêm thư viện biểu đồ.
