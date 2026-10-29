@@ -319,6 +319,6 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - P4-04: màn hình ôn (Alpine). Khi mở màn hình thì gọi `AddNewCards` trước, rồi lấy thẻ có `due_on` ≤ hôm nay; trả lời qua `ReviewCard`.
 
 **Lưu ý**
-- Chưa push: `main` hơn origin 12 commit (P3-05, P3-06, P4-01, P4-02, P4-03). P4-03 không có migration mới.
+- Chưa push: `main` hơn origin 13 commit (P3-05, P3-06, P4-01, P4-02, P4-03). P4-03 không có migration mới.
 - `AddNewCards` chưa được gọi ở đâu; P4-04 sẽ gọi.
 - Thẻ mới được tạo bằng `insertOrIgnore` (nhanh, và hai request cùng lúc không làm vượt hạn mức), nên không đi qua `$user->cards()->create()`.
