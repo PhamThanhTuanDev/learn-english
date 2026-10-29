@@ -1,0 +1,85 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://english.minlish.site
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, intl, bcmath, zip
+          coverage: none
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install PHP dependencies (production)
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
+
+      - name: Build frontend
+        run: npm ci && npm run build && rm -rf node_modules
+
+      # The FTP account is jailed to ~/learn-english, so its root is the app root.
+      # Only files listed in the server's .ftp-deploy-sync-state.json are ever
+      # replaced or deleted: .env, storage/ data and public/.well-known are safe.
+      # Never exclude a folder that was deployed before (storage/, public/...):
+      # the action would then delete it on the server with everything inside.
+      - name: Upload via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          security: strict
+          local-dir: ./
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            .env.*
+            .claude/**
+            docker/**
+            docs/**
+            tests/**
+            tools/**
+            AGENTS.md
+            CLAUDE.md
+            README.md
+            .editorconfig
+            .npmrc
+            compose.yaml
+            package.json
+            package-lock.json
+            phpstan.neon
+            phpunit.xml
+            postcss.config.js
+            tailwind.config.js
+            vite.config.js
