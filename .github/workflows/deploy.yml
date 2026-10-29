@@ -120,5 +120,6 @@ jobs:
 
       # .env lives only on the server (P2-04). After editing it there, run
       # `php artisan optimize` again, since the config is cached.
-      - name: Migrate and cache
-        run: ssh production "cd $APP_DIR && php artisan migrate --force --no-ansi && php artisan optimize --no-ansi"
+      # RoadmapSeeder reloads database/data/roadmap.json in place (D15).
+      - name: Migrate, seed roadmap and cache
+        run: ssh production "cd $APP_DIR && php artisan migrate --force --no-ansi && php artisan db:seed --class=RoadmapSeeder --force --no-ansi && php artisan optimize --no-ansi"

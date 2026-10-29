@@ -54,3 +54,9 @@ Rule trong `public/.htaccess` chuyển hướng 301 mọi request http tới `en
 Header `Strict-Transport-Security: max-age=31536000` (1 năm, không `includeSubDomains`, nên các subdomain khác của `minlish.site` không bị ảnh hưởng). Cookie luôn có cờ Secure nhờ `SESSION_SECURE_COOKIE=true` trong `.env` trên server.
 Lý do: rule nằm trong git và đi theo mỗi lần deploy, và chuyển hướng được cả file tĩnh. Nút Force HTTPS của cPanel không nằm trong repo. Còn redirect trong Laravel thì không chặn được file tĩnh, vì LiteSpeed trả các file này trực tiếp.
 Đánh đổi của HSTS: nếu AutoSSL gia hạn lỗi và chứng chỉ hết hạn, trình duyệt sẽ chặn hẳn trang, không cho bấm bỏ qua. Khi đó sửa chứng chỉ trong cPanel → SSL/TLS Status. Muốn bỏ HSTS thì đặt `max-age=0` và đợi trình duyệt nhận header mới; không chỉ xóa header là xong.
+
+## D15 · 2026-10-29 · Dữ liệu lộ trình nằm trong DB, nạp lại từ `roadmap.json` mỗi lần deploy
+5 bảng: `stages`, `months`, `weeks`, `roadmap_days` (728 ngày) và `roadmap_resources` (R0–R29). Các phần chỉ dùng để hiển thị là cột JSON: khối cố định mỗi ngày và ghi chú của giai đoạn (`stages.blocks`, `stages.notes`), các dòng thông tin của tuần (`weeks.details`). Những phần này luôn đọc cùng bảng cha và không cần truy vấn riêng.
+`RoadmapSeeder` đọc `database/data/roadmap.json`, rồi `upsert` theo `code`/`number` trong một transaction. Dòng có sẵn được cập nhật tại chỗ và id không đổi, nên tiến độ học (P3-03) trỏ vào `roadmap_days.id` không bị ảnh hưởng. Deploy chạy seeder ngay sau `migrate`.
+Lý do: sửa `tools/roadmap/data.js` → `npm run json` → push là DB production tự cập nhật, không phải làm tay. Seeder chạy khoảng 0,5 giây.
+Giới hạn: seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc ngày khỏi lộ trình thì phải viết migration dọn riêng.
