@@ -60,3 +60,9 @@ Lý do: rule nằm trong git và đi theo mỗi lần deploy, và chuyển hư�
 `RoadmapSeeder` đọc `database/data/roadmap.json`, rồi `upsert` theo `code`/`number` trong một transaction. Dòng có sẵn được cập nhật tại chỗ và id không đổi, nên tiến độ học (P3-03) trỏ vào `roadmap_days.id` không bị ảnh hưởng. Deploy chạy seeder ngay sau `migrate`.
 Lý do: sửa `tools/roadmap/data.js` → `npm run json` → push là DB production tự cập nhật, không phải làm tay. Seeder chạy khoảng 0,5 giây.
 Giới hạn: seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc ngày khỏi lộ trình thì phải viết migration dọn riêng.
+
+## D16 · 2026-10-29 · Bảng tiến độ học: có dòng là đã xong, cổng tháng chỉ ghi đạt/không đạt
+- `day_completions`: có dòng nghĩa là ngày đó đã học xong; bỏ tick thì xóa dòng. Cột `minutes` (mặc định 0) và `completed_at` (UTC, bắt buộc). So `completed_at` với ngày theo lịch để biết học bù hay đúng ngày, và dùng nó để tính chuỗi ngày học. Không có cột ghi chú (lỗi sai ghi vào Sổ lỗi ở Phase 5).
+- `gate_results`: mỗi người một kết quả cho mỗi tháng, làm lại thì ghi đè. Cột `passed`, `note` (được để trống), `checked_at` (UTC). Điểm chi tiết từng kỹ năng để P6-01 làm bảng riêng.
+- Cả hai bảng unique theo `user_id` + ngày/tháng; xóa người dùng thì xóa luôn tiến độ của họ.
+- Cột thời điểm dùng kiểu `datetime`, không dùng `timestamp`. Trên MariaDB 10.5 (`explicit_defaults_for_timestamp` = 0), cột `timestamp NOT NULL` đầu tiên của bảng tự nhận `ON UPDATE CURRENT_TIMESTAMP`, nên sửa số phút sẽ làm `completed_at` đổi theo.

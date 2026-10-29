@@ -200,3 +200,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - `main` có 5 commit chưa push (docs P2-05, feat + docs P3-01, feat + docs P3-02). Bạn chọn để tới khi task sau cần mới push.
 - Ngày thứ mấy của lộ trình (`User::roadmapDayNumber()`) khớp với `roadmap_days.number`, không phải `id`.
 - Seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc ngày khỏi lộ trình thì cần migration dọn riêng (xem D15).
+
+## 2026-10-29 · P3-03 (bảng tiến độ học)
+**Đã làm**
+- Chốt với bạn (D16): có dòng `day_completions` là ngày đã xong; cổng tháng chỉ ghi đạt/không đạt + ghi chú + thời điểm.
+- Hai migration sinh bằng `make:model -m`:
+  - `day_completions`: `user_id`, `roadmap_day_id`, `minutes` (mặc định 0), `completed_at` (UTC). Unique (`user_id`, `roadmap_day_id`).
+  - `gate_results`: `user_id`, `month_id`, `passed`, `note` (được để trống), `checked_at` (UTC). Unique (`user_id`, `month_id`).
+  - `user_id` xóa theo người dùng (`cascadeOnDelete`). `roadmap_day_id`/`month_id` không cascade, vì seeder không xóa dòng nào (D15).
+- Model `DayCompletion`, `GateResult`, có quan hệ `User→dayCompletions/gateResults`, `RoadmapDay→completions`, `Month→gateResults` và chiều ngược lại. `user_id` không nằm trong `Fillable`: tạo bản ghi qua `$user->dayCompletions()->create(...)`.
+- Đã migrate trên MariaDB 10.5 ở dev: hai bảng InnoDB, cột thời điểm là `datetime` không có `ON UPDATE`.
+- Test `tests/Feature/Database/ProgressTablesTest.php` (6 test): quan hệ hai chiều, unique theo người dùng, hai người cùng tick một ngày được, xóa người dùng thì xóa tiến độ.
+
+**Tiếp theo**
+- P3-04: trang **Hôm nay**. Tick hoàn thành tạo hoặc xóa dòng `day_completions` của ngày `number = roadmapDayNumber()`, nhập phút học.
+
+**Lưu ý**
+- `main` có 7 commit chưa push (thêm feat + docs P3-03). Push đầu tiên sẽ chạy cả migration P3-02, P3-03 và `RoadmapSeeder` trên production.
+- Cột thời điểm của bảng học viên nên dùng `datetime`, không dùng `timestamp` (xem D16).
