@@ -344,3 +344,20 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Tài khoản owner trên dev đã có 8 thẻ, tạo khi trang `/flashcards` được mở lúc 16:21 ngày 29/10. Đó không phải dữ liệu thử nên mình giữ nguyên.
 - Khung trình duyệt dựng sẵn bị ẩn thì Alpine vẽ lại trễ (x-show dùng requestAnimationFrame); kiểm tra bằng `Alpine.$data()` và chờ một lúc rồi đo DOM.
 - `public/build` không commit; CI tự build. Ở dev chạy `npm run build` (hoặc `npm run dev`) sau khi sửa JS.
+
+## 2026-10-29 · Push + P4-05 (thống kê flashcard)
+**Đã làm**
+- Push 14 commit (P3-05 → P4-04). Deploy tự chạy thành công (test, migrate 3 bảng mới, import từ vựng); production trả 200.
+- Chốt với bạn (D22): thống kê ở trang Flashcard và trang Hôm nay; tỉ lệ nhớ 30 ngày chỉ tính thẻ đã nhớ ở lần trước; có số đã học và đã thuộc; có dự báo 7 ngày tới.
+- `App\Support\FlashcardStats::for($user)`: `due`, `dueNew`, `pendingNew`, `answeredToday`, `learned`, `known`, `retentionReviews`/`retentionPassed` (`retentionPercent()`), `forecast` (7 ngày, kèm % so với ngày nhiều thẻ nhất). `AddNewCards::remaining()` đếm từ mới còn thiếu của hôm nay mà không tạo thẻ (tách `studyDay()`/`missing()` dùng chung với `handle()`).
+- Trang Flashcard: 3 ô số và khối "Thẻ đến hạn 7 ngày tới" dưới phần ôn, chỉ hiện khi đã học ít nhất 1 từ. Trang Hôm nay: khối "Flashcard" ngay dưới 4 ô thống kê, có nút "Ôn ngay" (hết thẻ thì là "Xem thống kê").
+- Test `FlashcardStatsTest` (4): các số đếm và ranh giới ngày theo giờ Việt Nam, tỉ lệ nhớ (bỏ lần đầu, lần ôn lại sau Quên, lần ngoài 30 ngày, thẻ người khác), trang Hôm nay đếm từ mới mà không tạo thẻ, ẩn khi chưa bắt đầu hoặc chưa học. Cả bộ 146 test xanh.
+- Đã chạy truy vấn `lag()` và nhóm theo ngày trên MariaDB dev (rollback): tỉ lệ 2/3 đúng, dự báo đúng ngày. Xem trên trình duyệt bằng tài khoản tạm (đã xóa): sau 6 lần trả lời (1 Quên), trang Hôm nay báo "còn 3 thẻ (2 từ mới)", trang Flashcard báo đã học 6 và ngày mai 5 thẻ; khổ 375px không tràn ngang.
+
+**Tiếp theo**
+- Phase 4 xong. Phase 5: P5-01 Sổ lỗi (thêm/sửa/xóa lỗi: câu sai, câu đúng, loại lỗi, tuần; tăng số lần lặp lại).
+
+**Lưu ý**
+- Chưa push: `main` hơn origin 2 commit (P4-05). Không có migration mới.
+- Các số trên trang Flashcard chụp lúc mở trang, không tự cập nhật khi đang ôn (bộ đếm "Còn N thẻ" và "Đã trả lời" thì có).
+- `pendingNew` giả định danh sách từ chưa hết (chỉ hết khi đã dùng gần 7.463 từ).
