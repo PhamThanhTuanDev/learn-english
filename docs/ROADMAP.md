@@ -50,7 +50,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 **Xong khi:** ôn từ hằng ngày trên web thay cho Anki.
 
 ## Phase 5 — Sổ lỗi
-- [ ] P5-01 Thêm/sửa/xóa lỗi (câu sai, câu đúng, loại lỗi, tuần), tăng số lần lặp lại
+- [x] P5-01 Thêm/sửa/xóa lỗi (câu sai, câu đúng, loại lỗi, tuần), tăng số lần lặp lại
 - [ ] P5-02 Lọc theo loại lỗi; danh sách "3 lỗi ưu tiên" cho Ngày 6
 
 ## Phase 6 — Điểm thi và biểu đồ

@@ -361,3 +361,20 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Chưa push: `main` hơn origin 2 commit (P4-05). Không có migration mới.
 - Các số trên trang Flashcard chụp lúc mở trang, không tự cập nhật khi đang ôn (bộ đếm "Còn N thẻ" và "Đã trả lời" thì có).
 - `pendingNew` giả định danh sách từ chưa hết (chỉ hết khi đã dùng gần 7.463 từ).
+
+## 2026-10-30 · P5-01 (Sổ lỗi: thêm/sửa/xóa, +1 lần)
+**Đã làm**
+- Chốt với bạn (D23): 8 loại lỗi cố định theo Phụ lục A, thêm ô ghi chú không bắt buộc.
+- Bảng `mistakes`, model `Mistake` (+ factory), enum `MistakeCategory` (`label()` tiếng Việt), `MistakeRequest`, `MistakeController` (index/store/edit/update/destroy/repeat; lỗi của người khác trả 404). `User::mistakes()`, `User::roadmapWeekNumber()`.
+- Trang `/mistakes` thay trang "sắp có": form "Ghi lỗi mới" (mặc định tuần hiện tại và loại vừa dùng), danh sách mới nhất ở trên (câu sai gạch đỏ, câu đúng màu xanh, ghi chú, ngày theo giờ người học, "Đã gặp N lần", nút +1 lần / Sửa / Xóa), phân trang 30. Sau "+1 lần" trang quay về đúng lỗi đó (`#mistake-{id}`).
+- Test `MistakeLogTest` (7): giá trị mặc định của form, danh sách và thứ tự, thêm (bỏ qua số lần gửi lên), kiểm tra dữ liệu, +1 lần, sửa/xóa, không đụng được lỗi người khác và xóa theo người dùng. Cả bộ 153 test xanh.
+- Đã thử ở dev bằng tài khoản tạm (đã xóa): thêm 2 lỗi, +1, sửa (đổi câu, số lần, ghi chú), xóa; DB khớp. Khổ 375px không tràn ngang.
+
+**Tiếp theo**
+- P5-02: lọc theo loại lỗi; danh sách "3 lỗi ưu tiên" cho Ngày 6 (Phụ lục A: lỗi lặp từ 3 lần là lỗi ưu tiên).
+
+**Lưu ý**
+- Chưa push: `main` hơn origin 2 commit. Có migration mới (`mistakes`); deploy sẽ tạo bảng.
+- Hôm nay Docker Desktop chưa chạy khi mở phiên (máy khởi động lại); đã bật bằng tay rồi `docker compose up -d`.
+- `php artisan serve` trong container chỉ có 1 luồng: thỉnh thoảng một request bị kẹt 1–3 phút sau khi trình duyệt dựng sẵn tải trang (có thể do kết nối giữ sẵn của trình duyệt). Nếu phiền có thể đặt `PHP_CLI_SERVER_WORKERS` cho service `app` (cần chốt trước khi đổi cấu hình Docker).
+- Sau khi thêm view mới phải `npm run build` thì class Tailwind mới có trong CSS ở dev (CI tự build cho production).

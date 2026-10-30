@@ -98,3 +98,8 @@ Giới hạn: seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc 
 - Đã học = thẻ đã ôn ít nhất 1 lần. Đã thuộc = khoảng cách ôn từ 21 ngày (như Anki).
 - Tỉ lệ nhớ: các lần ôn trong 30 ngày gần nhất mà lần ôn trước của thẻ đó đã nhớ (khoảng cách > 0). Không tính lần gặp đầu và lần ôn lại ngay sau Quên. Khó/Nhớ/Dễ là nhớ, Quên là quên. Lần ôn trước lấy bằng `lag()` (window function, có từ MariaDB 10.2 và SQLite 3.25).
 - Trang Hôm nay chỉ đếm từ mới còn chờ (`AddNewCards::remaining()`), không tạo thẻ. Thẻ chỉ được tạo khi mở trang Flashcard, để việc chỉ xem trang Hôm nay không làm dồn thẻ.
+
+## D23 · 2026-10-30 · Sổ lỗi: 8 loại cố định theo Phụ lục A, có ghi chú, đếm số lần bằng nút +1
+- Bảng `mistakes`: `user_id`, `wrong` (câu/chỗ sai), `correct` (sửa đúng), `category`, `note` (không bắt buộc, tối đa 255 ký tự), `week` (tuần lộ trình 1–104, được để trống), `occurrences` (mặc định 1), `last_repeated_at` (UTC, kiểu `datetime`). Index `user_id` + `category` cho phần lọc ở P5-02. Xóa người dùng thì xóa luôn sổ lỗi.
+- Loại lỗi là enum `App\Enums\MistakeCategory` với 8 loại của Phụ lục A: ngữ pháp, từ vựng/collocation, phát âm, chính tả, nghe nhầm, hiểu sai câu hỏi, liên kết/ý, quản lý thời gian. Không có "Khác" và không gõ tự do, để lọc và đếm theo loại cho chính xác.
+- Trang `/mistakes`: form thêm lỗi ở trên, mặc định là tuần hiện tại và loại lỗi vừa dùng; danh sách mới nhất ở trên, 30 lỗi mỗi trang. Gặp lại lỗi thì bấm "+1 lần" (tăng `occurrences`, ghi `last_repeated_at`). Sửa ở trang riêng, được sửa cả số lần. Xóa có hỏi lại.
