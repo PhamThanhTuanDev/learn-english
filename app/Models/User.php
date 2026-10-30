@@ -73,6 +73,25 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<Mistake, $this>
+     */
+    public function mistakes(): HasMany
+    {
+        return $this->hasMany(Mistake::class);
+    }
+
+    /**
+     * The roadmap week (1–104) the learner is in today, or null before the
+     * start and after the last week.
+     */
+    public function roadmapWeekNumber(): ?int
+    {
+        $day = $this->roadmapDayNumber();
+
+        return $day === null || $day > 728 ? null : intdiv($day - 1, 7) + 1;
+    }
+
+    /**
      * Which day of the roadmap the learner is on today (day 1 = start date),
      * or null when no start date is set or it is still in the future.
      */

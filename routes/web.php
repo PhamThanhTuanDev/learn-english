@@ -3,6 +3,7 @@
 use App\Http\Controllers\DayCompletionController;
 use App\Http\Controllers\FlashcardController;
 use App\Http\Controllers\GateResultController;
+use App\Http\Controllers\MistakeController;
 use App\Http\Controllers\MonthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoadmapController;
@@ -32,8 +33,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards');
     Route::post('/flashcards/{card}/review', [FlashcardController::class, 'review'])->name('flashcards.review');
 
+    Route::get('/mistakes', [MistakeController::class, 'index'])->name('mistakes');
+    Route::post('/mistakes', [MistakeController::class, 'store'])->name('mistakes.store');
+    Route::get('/mistakes/{mistake}/edit', [MistakeController::class, 'edit'])->name('mistakes.edit');
+    Route::patch('/mistakes/{mistake}', [MistakeController::class, 'update'])->name('mistakes.update');
+    Route::delete('/mistakes/{mistake}', [MistakeController::class, 'destroy'])->name('mistakes.destroy');
+    Route::post('/mistakes/{mistake}/repeat', [MistakeController::class, 'repeat'])->name('mistakes.repeat');
+
     // Placeholders until each feature lands (see docs/ROADMAP.md).
-    Route::view('/mistakes', 'coming-soon', ['title' => 'Sổ lỗi', 'phase' => 'Phase 5'])->name('mistakes');
     Route::view('/scores', 'coming-soon', ['title' => 'Điểm số', 'phase' => 'Phase 6'])->name('scores');
 });
 
