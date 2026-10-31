@@ -46,6 +46,7 @@ class TodayController extends Controller
             'completions' => $completions,
             'stats' => $stats,
             'flashcards' => $flashcards,
+            'priorityMistakes' => $user->mistakes()->pinned()->get(),
             'resources' => $this->resourcesMentionedIn([
                 $day->task,
                 ...array_column($stage->blocks, 'description'),

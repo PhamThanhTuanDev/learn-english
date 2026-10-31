@@ -100,6 +100,38 @@
                 </div>
             @endif
 
+            @if ($day !== null && ($priorityMistakes->isNotEmpty() || $day->day === 6))
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900">
+                        <h3 class="text-lg font-medium">Lỗi ưu tiên tuần này</h3>
+                        @if ($day->day === 6)
+                            <p class="mt-1 text-sm text-gray-600">
+                                Hôm nay là Ngày 6: cập nhật sổ lỗi và
+                                <a href="{{ route('mistakes') }}#priorities" class="underline text-indigo-600 hover:text-indigo-800">chọn 3 lỗi ưu tiên cho tuần sau</a>.
+                            </p>
+                        @endif
+
+                        @if ($priorityMistakes->isEmpty())
+                            <p class="mt-3 text-gray-600">Chưa ghim lỗi nào.</p>
+                        @else
+                            <ol class="mt-3 space-y-3">
+                                @foreach ($priorityMistakes as $mistake)
+                                    <li class="flex items-start gap-3">
+                                        <span class="font-semibold text-gray-500">{{ $loop->iteration }}.</span>
+                                        <x-mistake-summary :mistake="$mistake" class="flex-1" />
+                                    </li>
+                                @endforeach
+                            </ol>
+                            @if ($day->day !== 6)
+                                <p class="mt-3 text-sm">
+                                    <a href="{{ route('mistakes') }}" class="underline text-indigo-600 hover:text-indigo-800">Mở Sổ lỗi</a>
+                                </p>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             @if ($day !== null)
                 @php
                     $completion = $completions->get($day->id);

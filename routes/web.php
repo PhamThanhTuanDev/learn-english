@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/mistakes/{mistake}', [MistakeController::class, 'update'])->name('mistakes.update');
     Route::delete('/mistakes/{mistake}', [MistakeController::class, 'destroy'])->name('mistakes.destroy');
     Route::post('/mistakes/{mistake}/repeat', [MistakeController::class, 'repeat'])->name('mistakes.repeat');
+    Route::post('/mistakes/{mistake}/pin', [MistakeController::class, 'pin'])->name('mistakes.pin');
+    Route::delete('/mistakes/{mistake}/pin', [MistakeController::class, 'unpin'])->name('mistakes.unpin');
 
     // Placeholders until each feature lands (see docs/ROADMAP.md).
     Route::view('/scores', 'coming-soon', ['title' => 'Điểm số', 'phase' => 'Phase 6'])->name('scores');
