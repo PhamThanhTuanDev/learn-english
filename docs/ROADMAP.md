@@ -51,7 +51,7 @@ Thứ tự có chủ đích: deploy sớm (Phase 2) để mỗi tính năng làm
 
 ## Phase 5 — Sổ lỗi
 - [x] P5-01 Thêm/sửa/xóa lỗi (câu sai, câu đúng, loại lỗi, tuần), tăng số lần lặp lại
-- [ ] P5-02 Lọc theo loại lỗi; danh sách "3 lỗi ưu tiên" cho Ngày 6
+- [x] P5-02 Lọc theo loại lỗi; danh sách "3 lỗi ưu tiên" cho Ngày 6
 
 ## Phase 6 — Điểm thi và biểu đồ
 - [ ] P6-01 Kết quả cổng kiểm tra (R0/R21, A2 Key, B1 Preliminary, B2 First) và thi thử IELTS theo 4 kỹ năng; Overall làm tròn theo quy tắc IELTS (có test)

@@ -103,3 +103,9 @@ Giới hạn: seeder không xóa dòng nào. Nếu sau này bớt tuần hoặc 
 - Bảng `mistakes`: `user_id`, `wrong` (câu/chỗ sai), `correct` (sửa đúng), `category`, `note` (không bắt buộc, tối đa 255 ký tự), `week` (tuần lộ trình 1–104, được để trống), `occurrences` (mặc định 1), `last_repeated_at` (UTC, kiểu `datetime`). Index `user_id` + `category` cho phần lọc ở P5-02. Xóa người dùng thì xóa luôn sổ lỗi.
 - Loại lỗi là enum `App\Enums\MistakeCategory` với 8 loại của Phụ lục A: ngữ pháp, từ vựng/collocation, phát âm, chính tả, nghe nhầm, hiểu sai câu hỏi, liên kết/ý, quản lý thời gian. Không có "Khác" và không gõ tự do, để lọc và đếm theo loại cho chính xác.
 - Trang `/mistakes`: form thêm lỗi ở trên, mặc định là tuần hiện tại và loại lỗi vừa dùng; danh sách mới nhất ở trên, 30 lỗi mỗi trang. Gặp lại lỗi thì bấm "+1 lần" (tăng `occurrences`, ghi `last_repeated_at`). Sửa ở trang riêng, được sửa cả số lần. Xóa có hỏi lại.
+
+## D24 · 2026-10-31 · 3 lỗi ưu tiên: app gợi ý, người học ghim; hiện trên Sổ lỗi và Hôm nay
+- Cột `mistakes.pinned_at` (datetime, null = không ghim). Ghim tối đa 3 lỗi (`Mistake::MAX_PINNED`); ghim lỗi thứ 4 thì báo phải bỏ ghim một lỗi trước. Ghim giữ nguyên cho tới khi bỏ ghim, không tự hết hạn theo tuần, để lỡ quên chọn lại thì vẫn còn danh sách cũ.
+- Gợi ý: lỗi chưa ghim đã gặp từ 3 lần (`Mistake::PRIORITY_OCCURRENCES`, theo Phụ lục A), xếp theo số lần rồi lần gặp gần nhất (`last_repeated_at`, chưa lặp thì lấy lúc ghi), tối đa 5; chỉ hiện khi còn chỗ ghim.
+- Trang Sổ lỗi: khối "3 lỗi ưu tiên" ở đầu trang, nút Ghim/Bỏ ghim ở từng lỗi, nhãn "Ưu tiên" cho lỗi từ 3 lần; lọc theo loại bằng `?category=` (chỉ hiện loại đang có lỗi, kèm số lượng).
+- Trang Hôm nay: khối "Lỗi ưu tiên tuần này" hiện mỗi ngày khi có lỗi được ghim; Ngày 6 của mọi tuần luôn hiện kèm lời nhắc chọn 3 lỗi cho tuần sau (link tới `#priorities`).

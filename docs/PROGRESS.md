@@ -378,3 +378,21 @@ Mỗi phiên thêm một mục ở cuối: đã làm, tiếp theo, lưu ý. Phi�
 - Hôm nay Docker Desktop chưa chạy khi mở phiên (máy khởi động lại); đã bật bằng tay rồi `docker compose up -d`.
 - `php artisan serve` trong container chỉ có 1 luồng: thỉnh thoảng một request bị kẹt 1–3 phút sau khi trình duyệt dựng sẵn tải trang (có thể do kết nối giữ sẵn của trình duyệt). Nếu phiền có thể đặt `PHP_CLI_SERVER_WORKERS` cho service `app` (cần chốt trước khi đổi cấu hình Docker).
 - Sau khi thêm view mới phải `npm run build` thì class Tailwind mới có trong CSS ở dev (CI tự build cho production).
+
+## 2026-10-30/31 · Push P5-01 + P5-02 (lọc và 3 lỗi ưu tiên)
+**Đã làm**
+- Push 2 commit của P5-01; deploy thành công (migrate bảng `mistakes`), production trả 200.
+- Chốt với bạn (D24): app gợi ý lỗi gặp từ 3 lần, người học tự ghim tối đa 3; danh sách hiện ở Sổ lỗi và trang Hôm nay mỗi ngày, Ngày 6 có lời nhắc.
+- Migration thêm `mistakes.pinned_at`. Scope `Mistake::pinned()` / `Mistake::suggested()` (attribute `#[Scope]`), hằng `MAX_PINNED`, `PRIORITY_OCCURRENCES`. Route `mistakes.pin` (POST) / `mistakes.unpin` (DELETE); quay về `#priorities`.
+- Trang Sổ lỗi: khối "3 lỗi ưu tiên" (đã ghim + gợi ý), lọc theo loại `?category=` với số lượng mỗi loại (giữ bộ lọc khi phân trang), nhãn "Đang ghim"/"Ưu tiên", nút Ghim/Bỏ ghim ở từng lỗi. Component `x-mistake-summary` dùng chung với trang Hôm nay.
+- Trang Hôm nay: khối "Lỗi ưu tiên tuần này" ngay dưới khối Flashcard.
+- Test `MistakePrioritiesTest` (4): lọc và số lượng (loại lạ thì hiện tất cả), thứ tự gợi ý, giới hạn 3 và thứ tự ghim, bỏ ghim, không ghim được lỗi người khác, trang Hôm nay ngày thường/Ngày 6. Cả bộ 157 test xanh.
+- Đã thử ở dev bằng tài khoản tạm ở Ngày 6 (đã xóa): gợi ý đúng thứ tự, bấm Ghim chuyển lỗi lên danh sách ưu tiên, trang Hôm nay có lời nhắc và lỗi đã ghim, lọc "Ngữ pháp (2)" đúng; khổ 375px không tràn ngang.
+
+**Tiếp theo**
+- Phase 5 xong. Phase 6: P6-01 kết quả cổng kiểm tra và thi thử IELTS theo 4 kỹ năng, Overall làm tròn theo quy tắc IELTS *(nên chốt cấu trúc bảng điểm trước)*.
+
+**Lưu ý**
+- Chưa push: `main` hơn origin 2 commit. Có migration mới (`pinned_at`).
+- Phiên này bị ngắt qua đêm: Docker còn chạy nhưng container đã dừng, phải `docker compose up -d` lại.
+- Tài khoản owner trên dev hiện có 16 thẻ (bạn mở trang Flashcard thêm một ngày); giữ nguyên.
